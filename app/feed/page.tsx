@@ -4,7 +4,7 @@ const page = () => {
   return (
     <div>
 
-        Feed
+        
     </div>
   )
 }

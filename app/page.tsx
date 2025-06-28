@@ -6,7 +6,7 @@ import CustomerReviews from "@/components/home/customerReviews";
 
 export default function Home() {
   return (
-    <div className="pt-[90px] ">
+    <div>
 
       <HomeHero/>
 

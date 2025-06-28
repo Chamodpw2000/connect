@@ -2,28 +2,30 @@
 import mongoose, { Schema, Document, models, model } from 'mongoose';
 
 export interface IUser extends Document {
-    firstName?: string;
+    firstName: string;
     lastName?: string;
     email: string;
-    password: string; // hashed
+    password?: string; // hashed
     role: string;
-    birthdate: Date;
-    country: string;
-    bio: string;
-    image: string;
+    birthdate?: Date;
+    country?: string;
+    bio?: string;
+    image?: string;
+    miniDescription?: string;
 }
 
 const UserSchema = new Schema<IUser>({
     firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
+    lastName: { type: String},
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String },
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
-    birthdate: { type: Date, required: true },
-    country: { type: String, required: true },
-    bio: { type: String, default: '' },
-    image: { type: String, default: '' },
-}, {
+    birthdate: { type: Date },
+    country: { type: String },
+    bio: { type: String},
+    image: { type: String},
+    miniDescription: { type: String}
+ }, {
     timestamps: true,
 
 });

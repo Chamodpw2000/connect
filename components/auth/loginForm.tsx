@@ -100,17 +100,15 @@ export default function LoginForm() {
           <div className="w-full border-t border-gray-300"></div>
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white px-2 text-gray-500">Or continue with</span>
+          <span className="bg-white px-2 text-gray-500">Or</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <Button variant="outline" className="bg-white hover:bg-gray-50" disabled>
-          <FaGoogle className="mr-2" /> Google
+      <div className="flex  justify-center items-center ">
+        <Button variant="outline" className=" hover:bg-gray-50 cursor-pointer" onClick={() => signIn('google')}>
+          <FaGoogle className="mr-2" /> Continue with Google
         </Button>
-        <Button variant="outline" className="bg-white hover:bg-gray-50" disabled>
-          <FaFacebook className="mr-2" /> Facebook
-        </Button>
+   
       </div>
     </div>
   );

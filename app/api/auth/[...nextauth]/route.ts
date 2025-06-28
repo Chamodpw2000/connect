@@ -1,5 +1,7 @@
 // app/api/auth/[...nextauth]/route.ts
 import NextAuth from 'next-auth';
+import GoogleProvider from 'next-auth/providers/google';
+
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { compare } from 'bcrypt';
 import { NextAuthOptions } from 'next-auth';
@@ -34,6 +36,10 @@ export const authOptions: NextAuthOptions = {
         };
       },
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
   ],
   session: {
     strategy: 'jwt',
@@ -42,7 +48,28 @@ export const authOptions: NextAuthOptions = {
     signIn: '/auth/signin',
   },
   callbacks: {
-    async jwt({ token, user }) {
+
+
+async signIn({ user, account }) {
+      if (account?.provider === 'google') {
+        await dbConnect();
+
+        console.log('Google user:', user);
+        
+        const existingUser = await User.findOne({ email: user.email });
+        if (!existingUser) {
+          await User.create({
+            email: user.email,
+            firstName: user.name?.split(' ')[0] || '',
+            lastName: user.name?.split(' ')[1] || '',
+            image: user.image,
+          });
+        }
+      }
+      return true;
+    },
+
+    async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
       }

@@ -1,4 +1,5 @@
 'use client'
+import { IoLocationOutline } from "react-icons/io5";
 
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -11,6 +12,8 @@ import { Lock, Mail, UserRound } from 'lucide-react'
 // import api from '@/net/api'
 import axios, { AxiosError } from 'axios'
 import { toast } from 'react-toastify'
+import { FaGoogle, FaLandmark } from 'react-icons/fa'
+import { signIn } from 'next-auth/react'
 // import { userFormSchema } from '@/models/user'
 
 
@@ -154,7 +157,7 @@ export default function RegisterForm() {
                                 <FormLabel className="text-gray-700">Country</FormLabel>
                                 <FormControl>
                                     <div className="relative">
-                                        <UserRound className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+                                        <IoLocationOutline className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
                                         <Input
                                             {...field}
                                             className="pl-10 bg-gray-50 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
@@ -275,6 +278,21 @@ export default function RegisterForm() {
                         className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md transition-colors mt-4">
                         Create Account
                     </Button>
+                          <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-300"></div>
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-white px-2 text-gray-500">Or</span>
+        </div>
+      </div>
+
+                        <div className="flex  justify-center items-center ">
+                            <Button variant="outline" className=" hover:bg-gray-50 cursor-pointer" onClick={() => signIn('google')}>
+                              <FaGoogle className="mr-2" /> Continue with Google
+                            </Button>
+                       
+                          </div>
                 </form>
             </Form>
         </div>
