@@ -1,9 +1,8 @@
 
 import dbConnect from '@/lib/mongoose';
 import Post from '@/models/post';
-import { image } from 'framer-motion/client';
-import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { NextResponse } from 'next/server';
 import { authOptions } from '../auth/[...nextauth]/route';
 type DetailedUser = {
   image: string;

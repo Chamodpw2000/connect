@@ -1,11 +1,10 @@
 'use client'
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
-import React, { useEffect } from 'react'
-import Image from 'next/image'
-import { div } from 'framer-motion/client';
-import { Button } from '../ui/button';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import React, { useEffect } from 'react';
+import { Button } from '../ui/button';
 
 
 const NewFeed = () => {

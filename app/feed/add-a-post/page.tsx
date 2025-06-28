@@ -1,15 +1,15 @@
 'use client'
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
-import React, { useState } from 'react'
-import { useForm } from 'react-hook-form';
-import z from 'zod';
 import mediaUpload from '@/lib/superbaseClient';
+import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
+import { Plus, Upload, X } from 'lucide-react'; // You can install lucide-react or use any icon library
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import { X, Plus, Upload } from 'lucide-react'; // You can install lucide-react or use any icon library
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
+import z from 'zod';
 
 const formSchema = z.object({
     title: z.string().min(2, { message: 'Title must be at least 2 characters' }).max(50, { message: 'Title must be at most 50 characters' }),

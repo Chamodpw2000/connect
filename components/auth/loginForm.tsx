@@ -1,15 +1,15 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
+import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { User, Lock } from 'lucide-react';
-import { FaFacebook, FaGoogle } from 'react-icons/fa';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Lock, User } from 'lucide-react';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { FaGoogle } from 'react-icons/fa';
+import { z } from 'zod';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),

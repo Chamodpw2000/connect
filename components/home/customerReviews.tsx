@@ -1,10 +1,3 @@
-import { Link } from 'lucide-react'
-import Image from 'next/image'
-import React from 'react'
-import { Button } from '../ui/button'
-import { features } from '@/constants/home'
-import FeatureCard from './featureCard'
-import { div } from 'framer-motion/client'
 
 const CustomerReviews = () => {
   return (

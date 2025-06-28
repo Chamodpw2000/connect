@@ -23,7 +23,7 @@ interface IPost {
 }
 
 const Posts = () => {
-  const { data: session, status } = useSession();
+  const { data: session} = useSession();
 
     const [posts, setPosts] = useState<IPost[]>([])
     const [loading, setLoading] = useState(true)

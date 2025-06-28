@@ -1,22 +1,20 @@
 'use client'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { signOut, useSession } from 'next-auth/react';
-import Image from 'next/image'
-import { useRouter } from 'next/navigation'
-import { Button } from '../ui/button';
-import { FaSearch, FaUser, FaSignOutAlt, FaCog } from 'react-icons/fa';
-import axios from 'axios';
-import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import { Avatar } from '@radix-ui/react-avatar';
+import axios from 'axios';
+import { signOut, useSession } from 'next-auth/react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { FaCog, FaSearch, FaSignOutAlt, FaUser } from 'react-icons/fa';
 
 const Header: React.FC = () => {
   const { data: session, status } = useSession();

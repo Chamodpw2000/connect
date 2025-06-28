@@ -1,12 +1,10 @@
 'use client'
 
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card'
-import { signIn } from 'next-auth/react';
-import { useState } from 'react';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
-import Link from 'next/link'
-import Image from 'next/image'
-import LoginForm from '@/components/auth/loginForm'
+import LoginForm from '@/components/auth/loginForm';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export default function LoginPage() {
   return (

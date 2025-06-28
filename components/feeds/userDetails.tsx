@@ -1,7 +1,6 @@
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/app/api/auth/[...nextauth]/route" // Adjust path as needed
-import Image from 'next/image'
-import Link from "next/link";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"; // Adjust path as needed
+import { getServerSession } from "next-auth/next";
+import Image from 'next/image';
 
 type DetailedUser = {
   image: string;

@@ -2,11 +2,11 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 
-import CredentialsProvider from 'next-auth/providers/credentials';
-import { compare } from 'bcrypt';
-import { NextAuthOptions } from 'next-auth';
 import dbConnect from '@/lib/mongoose';
 import User from '@/models/user';
+import { compare } from 'bcrypt';
+import { NextAuthOptions } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -108,3 +108,4 @@ async signIn({ user, account }) {
 
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
+

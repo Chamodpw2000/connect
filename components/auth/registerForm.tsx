@@ -1,19 +1,19 @@
 'use client'
 import { IoLocationOutline } from "react-icons/io5";
 
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { useRouter } from 'next/navigation'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Lock, Mail, UserRound } from 'lucide-react'
+import { Button } from '@/components/ui/button';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Lock, Mail, UserRound } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 // import api from '@/net/api'
-import axios, { AxiosError } from 'axios'
-import { toast } from 'react-toastify'
-import { FaGoogle, FaLandmark } from 'react-icons/fa'
-import { signIn } from 'next-auth/react'
+import axios, { AxiosError } from 'axios';
+import { signIn } from 'next-auth/react';
+import { FaGoogle } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 // import { userFormSchema } from '@/models/user'
 
 
