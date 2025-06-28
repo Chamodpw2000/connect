@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
-const publicRoutes = ['/', '/auth/login', '/auth/signup'];
 
 export async function middleware(req: NextRequest) {
+
+
+
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   const { pathname } = req.nextUrl;
 
@@ -21,7 +23,22 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/feed', req.url));
   }
 
-  return NextResponse.next();
+    const requestHeaders = new Headers(req.headers);
+if (token) {
+    if (token.email) requestHeaders.set('x-user-email', token.email);
+    if (typeof token.firstName === 'string') requestHeaders.set('x-user-first-name', token.firstName);
+    if (typeof token.lastName === 'string') requestHeaders.set('x-user-last-name', token.lastName);
+    if (typeof token.role === 'string') requestHeaders.set('x-user-role', token.role);
+    if (typeof token.image === 'string') requestHeaders.set('x-user-image', token.image);
+  }
+
+  return NextResponse.next(
+    {
+      request: {
+        headers: requestHeaders,
+      },
+    }
+  );
 }
 
 // ✅ Make sure static assets are excluded

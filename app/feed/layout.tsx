@@ -1,3 +1,8 @@
+import QuickLink from "@/components/feeds/quickLinks";
+import UserDetails from "@/components/feeds/userDetails";
+
+
+
 export default function RootLayout({
   children,
 }: {
@@ -5,26 +10,37 @@ export default function RootLayout({
 }) {
   return (
 
-      <body className="overflow-x-hidden ">
-        <div className="flex  min-h-screen">
-<div className="flex flex-1 bg-accent">
+   
+      <div className="flex w-full min-h-screen">
+        <div className="flex flex-1 bg-accent w-full">
 
-</div>
+          <div className="text-gray-700 text-xl font-bold w-full p-5">
 
-<div className="flex flex-3">
-   {children}
-</div>
 
-<div className="flex flex-1 bg-accent">
+            <UserDetails />
 
-</div>
+            <QuickLink />
+
+
+
+          </div>
 
         </div>
 
+        <div className="flex flex-3 p-5 w-full ">
+          {children}
+        </div>
 
-       
-       
-      </body>
- 
+        <div className="flex flex-1 bg-accent">
+
+        </div>
+
+      </div>
+
+
+
+
+   
+
   );
 }

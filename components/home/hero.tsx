@@ -1,9 +1,11 @@
-import { Link } from 'lucide-react'
+'use client'
 import React from 'react'
 import { Button } from '../ui/button'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 
 const HomeHero = () => {
+    const navigate = useRouter();
     return (
         <div className='flex flex-col ig:flex-row  relative  '>
 
@@ -29,7 +31,7 @@ const HomeHero = () => {
                     Come and join with us
 
 
-                    <Button className='bg-accent border-2 text-secondary hover:bg-secondary hover:text-white cursor-pointer  border-secondary w-[200px] my-[20px] rounded-xl'>
+                    <Button className='bg-accent border-2 text-secondary hover:bg-secondary hover:text-white cursor-pointer  border-secondary w-[200px] my-[20px] rounded-xl' onClick={()=> navigate.push('/feed')}>
                         Get Started
 
 

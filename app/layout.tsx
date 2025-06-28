@@ -36,7 +36,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable}`}>
-      <body className="antialiased overflow-x-hidden ">
+      <body className=" overflow-x-hidden ">
         <ToastContainer
           position="top-right"
           autoClose={5000}

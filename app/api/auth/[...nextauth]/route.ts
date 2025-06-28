@@ -33,6 +33,11 @@ export const authOptions: NextAuthOptions = {
         return {
           id: user._id.toString(),
           email: user.email,
+          firstName: user.firstName || '',
+          lastName: user.lastName || '',
+          image: user.image || '',
+          role: user.role || 'user',
+
         };
       },
     }),
@@ -72,12 +77,28 @@ async signIn({ user, account }) {
     async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
+        token.email = user.email;
+                const customUser = await User.findOne({ email: user.email });
+
+        // Use type assertion to access custom fields
+        if (customUser) {
+          token.firstName = customUser.firstName || '';
+          token.lastName = customUser.lastName || '';
+          token.image = customUser.image || '';
+          token.role = customUser.role || 'user';
+        }
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id as string;
+        session.user.email = token.email as string;
+        session.user.firstName = token.firstName as string;
+        session.user.lastName = token.lastName as string;
+        session.user.image = token.image as string;
+        session.user.role = token.role as string;
+        
       }
       return session;
     },
