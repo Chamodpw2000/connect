@@ -1,9 +1,9 @@
 
+import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/mongoose';
 import Post from '@/models/post';
 import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
-import { authOptions } from '../auth/[...nextauth]/route';
 type DetailedUser = {
   image: string;
   firstName: string;

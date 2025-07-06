@@ -1,4 +1,4 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"; // Adjust path as needed
+import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth/next";
 import Image from 'next/image';
 

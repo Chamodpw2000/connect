@@ -13,10 +13,13 @@ declare module 'next-auth' {
       role: string;
       bio?: string;
       country?: string;
+      birthday?: string;
+      miniDescription?: string;
       createdAt?: Date;
-
-
     };
+
+
+
   }
 
   interface User {
@@ -28,7 +31,8 @@ declare module 'next-auth' {
     role: string;
     bio?: string;
     country?: string;
+    birthday?: string;
+    miniDescription?: string;
     createdAt?: Date;
-
   }
 }
