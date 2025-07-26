@@ -77,7 +77,7 @@ export default function RegisterForm() {
         birthdate: form.getValues().birthDate,
         country: form.getValues().country,
       }
-      console.log(payload)
+   
 
       try {
         const response = await axios.post('/api/auth/register', payload)
@@ -88,7 +88,7 @@ export default function RegisterForm() {
       } catch (error) {
         const response = (error as AxiosError).response
         if (response && response.status !== 201) {
-          console.log("error", error);
+      
           let errorMessage = 'Registration failed. Please try again !'
           if (response.data && typeof response.data === 'object' && 'error' in response.data) {
             errorMessage = (response.data as { error?: string }).error || errorMessage

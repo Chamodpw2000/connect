@@ -8,7 +8,7 @@ export async function GET(
 ) {
   // Await params before using
   const { email } = await context.params;
-  console.log('Fetching user with email:', email);
+
       
   if (!email) {
     return NextResponse.json(

@@ -1,4 +1,5 @@
-import { authOptions } from "@/lib/auth";
+
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth/next";
 import Image from 'next/image';
 
@@ -58,7 +59,7 @@ const UserDetails = async () => {
         </div>
       ) : (
         <div>
-          <h2 className='text-2xl font-bold'>Welcome!</h2>
+        <h2 className='text-2xl font-bold'>Welcome!</h2>
           <Image 
             src={session.user.image || '/Images/feed/avatar.png'} 
             alt="User Avatar" 

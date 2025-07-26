@@ -32,7 +32,7 @@ const Header: React.FC = () => {
         try {
           const response = await axios.get(`/api/user/${session.user.email}`);
           setDetailedUser(response.data);
-          console.log('User details fetched:', response.data);
+      
         } catch (error) {
           console.error('Error fetching user details:', error);
         }

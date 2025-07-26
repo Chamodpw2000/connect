@@ -1,9 +1,9 @@
 
-import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/mongoose';
 import Post from '@/models/post';
 import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
+import { authOptions } from '../auth/[...nextauth]/route';
 type DetailedUser = {
   image: string;
   firstName: string;
@@ -29,16 +29,22 @@ async function fetchUserDetails(email: string): Promise<DetailedUser | null> {
     return null;
   }
 }
-export async function GET() {
+
+
+export async function GET(request: Request) {
+
   await dbConnect();
   const posts = await Post.find({});
-  return NextResponse.json(posts);
+  return NextResponse.json(posts, { status: 200 });
 }
 
 
 
 
 export async function POST(request: Request) {
+
+  
+  
 
 
   try{
