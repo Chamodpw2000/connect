@@ -31,14 +31,20 @@ export default function LoginForm() {
     const result = await signIn('credentials', {
       email: formValues.email,
       password: formValues.password,
-      redirect: true,
-      callbackUrl: '/feed', // Redirect URL after successful login
+      redirect: false,
     });
 
+    console.log('Login result:', result);
+    
+
     if (result?.error) {
-      form.setError('email', { type: 'manual', message: 'Invalid email or password' });
-      form.setError('password', { type: 'manual', message: 'Invalid email or password' });
-    } else if (result?.ok) {
+      if( result.error === 'userNotFound') {
+        form.setError('email', { type: 'manual', message: 'No user found with this email' });
+      } else if (result.error === 'InvalidPassword') {
+        form.setError('password', { type: 'manual', message: 'Invalid Password for this Email' });
+      }
+
+    } else if (result?.ok || result?.status === 200) {
       router.push('/feed'); // Redirect on successful login
     }
   };

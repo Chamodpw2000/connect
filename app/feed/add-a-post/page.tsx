@@ -1,134 +1,42 @@
 'use client'
-import mediaUpload from '@/lib/superbaseClient';
+import { AddPost } from '@/actions/post.actions';
+import { handleImageChange, removeImage } from '@/lib/handleImages';
+import { ImagePreview } from '@/types/posts';
+import { postFormSchema, postFormType } from '@/validations/post';
 import { zodResolver } from '@hookform/resolvers/zod';
-import axios from 'axios';
 import { Plus, Upload, X } from 'lucide-react'; // You can install lucide-react or use any icon library
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { toast } from 'react-toastify';
 import z from 'zod';
-
-const formSchema = z.object({
-    title: z.string().min(2, { message: 'Title must be at least 2 characters' }).max(50, { message: 'Title must be at most 50 characters' }),
-    description: z.string().min(6, { message: 'Description must be at least 6 characters' }).max(500, { message: 'Description must be at most 500 characters' }),
-});
-
-interface ImagePreview {
-    file: File;
-    url: string;
-    id: string;
-}
-
 const Page = () => {
     const [imagesPreviews, setImagesPreviews] = useState<ImagePreview[]>([]);
     const router = useRouter();
     const { data: session } = useSession();
     const [isSubmitting, setIsSubmitting] = useState(false);
-    
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+
+    const form = useForm<postFormType>({
+        resolver: zodResolver(postFormSchema),
         defaultValues: {
             title: '',
             description: '',
         },
     });
+const onSubmit = async (formValues: z.infer<typeof postFormSchema>) => {
+    if (!session?.user?.email) {
+        alert('You must be logged in to create a post');
+        return;
+    }
+    await AddPost({ formValues, imagePreviews: imagesPreviews, email: session.user.email });
+    setImagesPreviews([]); // Clear images after submission
+    form.reset(); // Reset the form fields
+    router.push('/feed'); // Redirect to feed after successful post creation
+};
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = e.target.files;
-        if (!files) return;
-
-        const newImages: ImagePreview[] = [];
-        
-        Array.from(files).forEach((file) => {
-            // Validate file type
-            if (!file.type.startsWith('image/')) {
-                alert(`${file.name} is not an image file`);
-                return;
-            }
-            
-            // Validate file size (e.g., max 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                alert(`${file.name} is too large. Maximum size is 5MB`);
-                return;
-            }
-
-            const imagePreview: ImagePreview = {
-                file,
-                url: URL.createObjectURL(file),
-                id: Math.random().toString(36).substr(2, 9)
-            };
-            
-            newImages.push(imagePreview);
-        });
-
-        setImagesPreviews(prev => [...prev, ...newImages]);
-        
-        // Reset the input value so the same file can be selected again if needed
-        e.target.value = '';
-    };
-
-    const removeImage = (id: string) => {
-        setImagesPreviews(prev => {
-            const imageToRemove = prev.find(img => img.id === id);
-            if (imageToRemove) {
-                // Clean up the object URL to prevent memory leaks
-                URL.revokeObjectURL(imageToRemove.url);
-            }
-            return prev.filter(img => img.id !== id);
-        });
-    };
-
-    const onSubmit = async (formValues: z.infer<typeof formSchema>) => {
-        if (!session?.user?.email) {
-            alert('You must be logged in to create a post');
-            return;
-        }
-
-        setIsSubmitting(true);
-        try {
-            let imageurls: string[] = [];
-            
-            // Only upload if there are images
-            if (imagesPreviews.length > 0) {
-                const promises = imagesPreviews.map(imagePreview => 
-                    mediaUpload(imagePreview.file)
-                );
-                imageurls = await Promise.all(promises) as string[];
-            }
-
-            const response = await axios.post('/api/posts', {
-                title: formValues.title,
-                description: formValues.description,
-                images: imageurls,
-                userEmail: session.user.email,
-            });
-
-            if (response.status === 200) {
-                const result = response.data;
-toast.success('Post created successfully!');                
-                // Clean up object URLs
-                imagesPreviews.forEach(img => URL.revokeObjectURL(img.url));
-                setImagesPreviews([]); // Clear previews after successful submission
-                form.reset(); // Reset the form fields
-                
-                router.push('/feed');
-            } else {
-                throw new Error('Failed to create post');
-                toast.error('Failed to create post. Please try again.');
-            }
-        } catch (error) {
-            console.error('Error submitting form:', error);
-            toast.error('Failed to create post. Please try again.');
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    // Clean up object URLs when component unmounts
-    React.useEffect(() => {
+// Clean up object URLs when component unmounts
+React.useEffect(() => {
         return () => {
             imagesPreviews.forEach(img => URL.revokeObjectURL(img.url));
         };
@@ -142,7 +50,7 @@ toast.success('Post created successfully!');
         );
     }
 
-    return (
+return (
         <div className='mx-auto p-6 w-full'>
             <h1 className="text-2xl font-bold mb-6">Create New Post</h1>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -186,7 +94,7 @@ toast.success('Post created successfully!');
                     <label className="block text-sm font-medium text-gray-700">
                         Photos ({imagesPreviews.length})
                     </label>
-                    
+
                     {/* Image Previews Grid */}
                     {imagesPreviews.length > 0 && (
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4">
@@ -202,7 +110,7 @@ toast.success('Post created successfully!');
                                         {/* Remove button */}
                                         <button
                                             type="button"
-                                            onClick={() => removeImage(imagePreview.id)}
+                                            onClick={() => removeImage({id: imagePreview.id, setImagesPreviews})}
                                             className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                                         >
                                             <X size={16} />
@@ -232,7 +140,7 @@ toast.success('Post created successfully!');
                                 multiple
                                 accept="image/*"
                                 className="hidden"
-                                onChange={handleImageChange}
+                                onChange={(e) => handleImageChange({e, setImagesPreviews})}
                             />
                         </label>
                     </div>
@@ -250,7 +158,7 @@ toast.success('Post created successfully!');
                                 multiple
                                 accept="image/*"
                                 className="hidden"
-                                onChange={handleImageChange}
+                                onChange={(e) => handleImageChange({e, setImagesPreviews})}
                             />
                         </div>
                     )}

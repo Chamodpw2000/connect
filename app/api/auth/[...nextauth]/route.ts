@@ -3,12 +3,13 @@
 import dbConnect from '@/lib/mongoose';
 import User from '@/models/user';
 import { compare } from 'bcrypt';
+import { error } from 'console';
 import jwt from 'jsonwebtoken';
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { cookies } from 'next/headers';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 export interface UserData {
   id: string;
@@ -47,12 +48,13 @@ export const authOptions: NextAuthOptions = {
         const user = await User.findOne({ email: credentials?.email });
 
         if (!user) {
-          throw new Error('No user found with this email');
+          throw new Error('userNotFound');
+          
         }
 
         const isValid = await compare(credentials!.password, user.password);
         if (!isValid) {
-          throw new Error('Invalid password');
+          throw new Error('InvalidPassword');
         }
         if (!process.env.ACCESS_TOKEN_SECRET) {
           throw new Error('ACCESS_TOKEN_SECRET is not defined');

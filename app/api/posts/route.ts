@@ -32,10 +32,23 @@ async function fetchUserDetails(email: string): Promise<DetailedUser | null> {
 
 
 export async function GET(request: Request) {
+  // Get page parameter from query string
+  const { searchParams } = new URL(request.url);
+  const pageParam = searchParams.get('page');
+  const page = pageParam ? parseInt(pageParam, 10) : 1;
+  const postsPerPage = 5; // Define how many posts per page
 
   await dbConnect();
-  const posts = await Post.find({});
-  return NextResponse.json(posts, { status: 200 });
+  const allPostsCount = await Post.countDocuments();
+  if (allPostsCount === 0) {
+    return NextResponse.json({ message: 'No posts found' }, { status: 404 });
+  }
+  const totalPages = Math.ceil(allPostsCount / postsPerPage);
+  const posts = await Post.find({})
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * postsPerPage)
+    .limit(postsPerPage);
+  return NextResponse.json({ posts, totalPages }, { status: 200 });
 }
 
 
