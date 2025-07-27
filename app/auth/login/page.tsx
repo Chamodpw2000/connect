@@ -28,7 +28,7 @@ export default function LoginPage() {
         <CardFooter className="flex flex-col space-y-4 pt-0">
           <div className="text-center w-full text-sm text-gray-500">
             <span>Don&apos;t have an account? </span>
-            <Link href="/auth/register" className="text-blue-600 font-medium hover:underline">
+            <Link href="/auth/signup" className="text-blue-600 font-medium hover:underline">
               Sign up
             </Link>
           </div>

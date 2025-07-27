@@ -1,8 +1,10 @@
 'use client';
 
+import { login } from '@/actions/auth.actions';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { loginFormSchema, LoginFormType } from '@/lib/validations/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Lock, User } from 'lucide-react';
 import { signIn } from 'next-auth/react';
@@ -11,33 +13,22 @@ import { useForm } from 'react-hook-form';
 import { FaGoogle } from 'react-icons/fa';
 import { z } from 'zod';
 
-const formSchema = z.object({
-  email: z.string().email({ message: 'Invalid email address' }),
-  password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
-});
+
 
 export default function LoginForm() {
   const router = useRouter();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<LoginFormType>({
+    resolver: zodResolver(loginFormSchema),
     defaultValues: {
       email: '',
       password: '',
     },
   });
 
-  const onSubmit = async (formValues: z.infer<typeof formSchema>) => {
-    const result = await signIn('credentials', {
-      email: formValues.email,
-      password: formValues.password,
-      redirect: false,
-    });
-
-    console.log('Login result:', result);
-    
-
-    if (result?.error) {
+  const onSubmit = async (formValues: z.infer<typeof loginFormSchema>) => {
+   const result = await login(formValues);
+     if (result?.error) {
       if( result.error === 'userNotFound') {
         form.setError('email', { type: 'manual', message: 'No user found with this email' });
       } else if (result.error === 'InvalidPassword') {

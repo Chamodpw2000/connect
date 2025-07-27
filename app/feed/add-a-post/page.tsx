@@ -2,7 +2,7 @@
 import { AddPost } from '@/actions/post.actions';
 import { handleImageChange, removeImage } from '@/lib/handleImages';
 import { ImagePreview } from '@/types/posts';
-import { postFormSchema, postFormType } from '@/validations/post';
+import { postFormSchema, postFormType } from '@/lib/validations/post';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, Upload, X } from 'lucide-react'; // You can install lucide-react or use any icon library
 import { useSession } from 'next-auth/react';

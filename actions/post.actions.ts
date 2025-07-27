@@ -2,7 +2,7 @@ import { POSTS_ENDPOINTS } from "@/constants/api-endpoints.constants";
 import api from "@/lib/interceptors";
 import mediaUpload from "@/lib/superbaseClient";
 import { ImagePreview } from "@/types/posts";
-import { postFormType } from "@/validations/post";
+import { postFormType } from "@/lib/validations/post";
 
 import { toast } from "react-toastify";
 
