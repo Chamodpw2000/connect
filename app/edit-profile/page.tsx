@@ -6,7 +6,11 @@ import CustomButton from '@/components/common/button'
 import DisplayProfile from '@/components/profile/display'
 import EditProfile from '@/components/profile/edit'
 const Profile = () => {
-  
+
+    const [isEdit, setIsEdit] = React.useState(false);
+
+    
+
     return (
         <div>
 
@@ -24,9 +28,10 @@ const Profile = () => {
 
                 </div>
     <div className="flex flex-3 p-5 w-full flex-col items-center justify-start">
-        <DisplayProfile />
-        <EditProfile/>
-         <CustomButton label="Edit Profile" onClick={() => {}} className='mt-[20px]' />
+       {isEdit ? <EditProfile setIsEdit={setIsEdit}/> : <DisplayProfile  />}
+
+        {!isEdit && <CustomButton label="Edit Profile" onClick={() => setIsEdit(true)} className='mt-[20px]' />}
+       
 
 </div>
                

@@ -41,3 +41,23 @@ export const loginFormSchema = z.object({
 
 export type LoginFormType = z.infer<typeof loginFormSchema>;
 
+export const editProfileSchema = z.object({
+  firstName: z.string().min(2, { message: 'First name must be at least 2 characters long' }),
+  lastName: z.string().min(2, { message: 'Last name must be at least 2 characters long' }),
+  bio: z.string().max(500, { message: 'Bio must be less than 500 characters' }).optional(),
+  country: z.string().min(2, { message: 'Country must be at least 2 characters long' }),
+  image: z.string().refine((val) => {
+    // Allow empty string, relative paths, or valid URLs
+    if (!val || val.startsWith('/') || val.startsWith('./') || val.startsWith('../')) {
+      return true;
+    }
+    try {
+      new URL(val);
+      return true;
+    } catch {
+      return false;
+    }
+  }, { message: 'Invalid image path or URL' }).optional(),
+});
+
+export type EditProfileType = z.infer<typeof editProfileSchema>;

@@ -2,6 +2,7 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth/next";
 import Image from 'next/image';
+import ButtonClientWrapper from "./buttonClientWrapper";
 
 type DetailedUser = {
   image: string;
@@ -73,7 +74,7 @@ const UserDetails = async () => {
       )}
 
       <div className='mt-5'>
-        <button className='px-4 py-2 bg-blue-500 text-white rounded'>Edit Profile</button>
+        <ButtonClientWrapper />
       </div>
 
 

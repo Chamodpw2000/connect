@@ -5,35 +5,45 @@ import Image from 'next/image'
 const DisplayProfile = () => {
       const { user } = useAuth();
   return (
-     <div className="flex  w-full flex-col items-center justify-start">
-           
-
-                        <Image
-                            src={user?.image || '/Images/feed/avatar.png'}
-                            alt={user?.firstName || 'User Avatar'}
-                            width={300}
-                            height={300}
-                            className="rounded-full w-[300px] h-[300px] object-cover mb-4 "
-                        />
-
-                        <div>
-
-                       
-
-                        <h1 className="text-xl font-bold "><span className='text-gray-600'>First Name:</span> {user?.firstName}</h1>
-                        <h1 className="text-xl font-bold"><span className='text-gray-600'>Last Name:</span> {user?.lastName}</h1>
-
-                        <p className="text-gray-600 "><span className='text-gray-600'>Email:</span> {user?.email}</p>
-                        <p className="text-gray-600"><span className='text-gray-600'>Role:</span> {user?.role || 'User'}</p>
-                        <p className="text-gray-600"><span className='text-gray-600'>Joined:</span> {new Date(user?.createdAt || '').toLocaleDateString()}</p>
-                                                <p className="text-gray-600"><span className='text-gray-600'>Role:</span> {user?.role || 'User'}</p>
-                        <p className="text-gray-600"><span className='text-gray-600'>Country:</span> {user?.country || 'Unknown'}</p>
-                        <p className="text-gray-600"><span className='text-gray-600'>Bio:</span> {user?.bio || 'No bio available'}</p>
-
-
- </div>
-
+        <div className="max-w-2xl mx-auto p-8 bg-white rounded-xl shadow-lg flex flex-col items-center">
+            <div className="relative group mb-6">
+                <Image
+                    src={user?.image || '/Images/feed/avatar.png'}
+                    alt={user?.firstName || 'User Avatar'}
+                    width={180}
+                    height={180}
+                    className="rounded-full w-[180px] h-[180px] object-cover border-4 border-blue-200 shadow-lg"
+                />
+                {/* Decorative ring */}
+                <div className="absolute inset-0 rounded-full border-4 border-blue-400 opacity-30 pointer-events-none"></div>
+            </div>
+            <div className="w-full text-center">
+                <h1 className="text-2xl font-bold text-gray-800 mb-1">{user?.firstName} {user?.lastName}</h1>
+                <p className="text-blue-600 font-medium mb-4">{user?.role || 'User'}</p>
+                        <div className="flex flex-col gap-4 mb-6 w-full">
+                            <div className="bg-gray-50 rounded-lg p-4 shadow w-full">
+                                            <div className="flex flex-col gap-4 w-full">
+                                                <div className="w-full">
+                                                    <span className="block text-xs text-gray-500 mb-1">Email</span>
+                                                    <span className="block text-base text-gray-700 font-semibold">{user?.email}</span>
+                                                </div>
+                                                <div className="w-full">
+                                                    <span className="block text-xs text-gray-500 mb-1">Country</span>
+                                                    <span className="block text-base text-gray-700 font-semibold">{user?.country || 'Unknown'}</span>
+                                                </div>
+                                                <div className="w-full">
+                                                    <span className="block text-xs text-gray-500 mb-1">Joined</span>
+                                                    <span className="block text-base text-gray-700 font-semibold">{new Date(user?.createdAt || '').toLocaleDateString()}</span>
+                                                </div>
+                                            </div>
+                            </div>
+                        </div>
+                <div className="bg-gray-100 rounded-lg p-6 shadow text-left">
+                    <span className="block text-xs text-gray-500 mb-2">Bio</span>
+                    <p className="text-gray-700 text-base">{user?.bio || 'No bio available'}</p>
                 </div>
+            </div>
+        </div>
 
   )
 }
