@@ -44,6 +44,7 @@ export type LoginFormType = z.infer<typeof loginFormSchema>;
 export const editProfileSchema = z.object({
   firstName: z.string().min(2, { message: 'First name must be at least 2 characters long' }),
   lastName: z.string().min(2, { message: 'Last name must be at least 2 characters long' }),
+  miniDescription: z.string().max(200, { message: 'Mini description must be less than 200 characters' }).optional(),
   bio: z.string().max(500, { message: 'Bio must be less than 500 characters' }).optional(),
   country: z.string().min(2, { message: 'Country must be at least 2 characters long' }),
   image: z.string().refine((val) => {

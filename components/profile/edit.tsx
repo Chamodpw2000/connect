@@ -1,37 +1,61 @@
-
 'use client'
-import React, { useState, useRef } from 'react';
-import { useAuth } from '@/hooks/useUser'
-import Image from 'next/image'
-import { useForm, FormProvider } from 'react-hook-form'
-import { useEffect } from 'react'
-import CustomButton from '../common/button';
+import { useAuth } from '@/hooks/useUser';
+import { deleteImageFromSupabase, uploadImageToSupabase } from '@/lib/handleImages';
+import getCroppedImg from '@/lib/utils/cropImage';
 import { editProfileSchema, EditProfileType } from '@/lib/validations/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { UserRound, Camera, Upload, Loader2 } from 'lucide-react';
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '../ui/form';
-import { Input } from '../ui/input';
+import axios from 'axios';
+import { Camera, Loader2, UserRound } from 'lucide-react';
+import Image from 'next/image';
+import React, { useEffect, useRef, useState } from 'react';
+import Cropper from 'react-easy-crop';
+import { FormProvider, useForm } from 'react-hook-form';
+import { FaTrash } from 'react-icons/fa';
 import { Button } from '../ui/button';
-import { uploadImageToSupabase, deleteImageFromSupabase } from '@/lib/handleImages';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
+import { Input } from '../ui/input';
 
 
 const EditProfile = ({ setIsEdit }: { setIsEdit: React.Dispatch<React.SetStateAction<boolean>> }) => {
-  const { user } = useAuth();
+  const { user } =  useAuth();
+  console.log("User data in edit:", user);
+
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [isUploading, setIsUploading] = useState(false);
+  const [showCropper, setShowCropper] = useState(false);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>({ x: 0, y: 0, width: 150, height: 150 });
+  const [isImageRemoved, setIsImageRemoved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<EditProfileType>({
     resolver: zodResolver(editProfileSchema),
     defaultValues: {
-      firstName: user?.firstName || '',
-      lastName: user?.lastName || '',
-      country: user?.country || '',
-      bio: user?.bio || '',
-      image: user?.image || '/Images/feed/avatar.png',
+      firstName: '',
+      lastName: '',
+      miniDescription: '',
+      country: '',
+      bio: '',
+      image: '/Images/feed/avatar.png',
     }
   });
+
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        miniDescription: user.miniDescription || '',
+        country: user.country || '',
+        bio: user.bio || '',
+        image: user.image || '/Images/feed/avatar.png',
+      });
+      setImagePreview(user.image || '/Images/feed/avatar.png');
+      setIsImageRemoved(false);
+    }
+  }, [user]);
 
 
 
@@ -48,19 +72,42 @@ const EditProfile = ({ setIsEdit }: { setIsEdit: React.Dispatch<React.SetStateAc
         alert('Please select an image file');
         return;
       }
-
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         alert('Image size must be less than 5MB');
         return;
       }
-
       setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
+        setShowCropper(true);
       };
       reader.readAsDataURL(file);
+    }
+  };
+  // Cropper callbacks
+  const onCropComplete = (_: any, croppedAreaPixels: any) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  };
+
+  // Ensure croppedAreaPixels is set on cropper mount
+  useEffect(() => {
+    if (showCropper && imagePreview) {
+      setCroppedAreaPixels({ x: 0, y: 0, width: 150, height: 150 });
+    }
+  }, [showCropper, imagePreview]);
+
+  const handleCropSave = async () => {
+    if (!imagePreview || !croppedAreaPixels) return;
+    try {
+      const croppedBlob = await getCroppedImg(imagePreview, croppedAreaPixels);
+      setImageFile(new File([croppedBlob], imageFile?.name || 'cropped.png', { type: croppedBlob.type }));
+      const croppedUrl = URL.createObjectURL(croppedBlob);
+      setImagePreview(croppedUrl);
+      setShowCropper(false);
+    } catch (err) {
+      alert('Failed to crop image');
     }
   };
 
@@ -68,24 +115,29 @@ const EditProfile = ({ setIsEdit }: { setIsEdit: React.Dispatch<React.SetStateAc
   const onSubmit = async (data: EditProfileType) => {
     console.log("Form submitted with data:", data);
     setIsUploading(true);
-    
     try {
       let finalImageUrl = data.image;
 
+      // If user removed image, delete from Supabase
+      if (isImageRemoved && user?.image && !user.image.includes('/Images/feed/avatar.png')) {
+        try {
+          console.log("Deleting old image:", user.image);
+          await deleteImageFromSupabase(user.image);
+        } catch (error) {
+          console.log("Error deleting old image:", error);
+        }
+        finalImageUrl = '/Images/feed/avatar.png';
+      } 
       // If user selected a new image, upload it
-      if (imageFile) {
-        // Delete old image if it exists and is not the default avatar
-        if (user?.image && 
-            !user.image.includes('/Images/feed/avatar.png') && 
-            user.image.includes('supabase')) {
+      else if (imageFile) {
+        if (user?.image && !user.image.includes('/Images/feed/avatar.png')) {
           try {
+            console.log("Deleting old image:", user.image);
             await deleteImageFromSupabase(user.image);
           } catch (error) {
             console.log("Error deleting old image:", error);
           }
         }
-
-        // Upload new image
         finalImageUrl = await uploadImageToSupabase(imageFile);
       }
 
@@ -95,7 +147,10 @@ const EditProfile = ({ setIsEdit }: { setIsEdit: React.Dispatch<React.SetStateAc
       };
 
       console.log("Save Profile Data:", finalData);
-      
+
+      axios.post('/api/edit-profile', finalData)
+       
+
       // Add your API call here to update user profile
       // await updateProfile(finalData);
       
@@ -141,17 +196,56 @@ const EditProfile = ({ setIsEdit }: { setIsEdit: React.Dispatch<React.SetStateAc
                   <Camera className="text-white h-8 w-8" />
                 </div>
               </div>
-              
-              {/* Upload button */}
+              {/* Removed upload button */}
+              {/* Red dustbin (trash) icon for remove profile image - right side */}
               <button
                 type="button"
-                onClick={handleImageClick}
-                className="absolute bottom-0 right-0 bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full shadow-lg transition-colors"
+                onClick={() => {
+                  setImagePreview('/Images/feed/avatar.png');
+                  setImageFile(null);
+                  setIsImageRemoved(true);
+                }}
+                className="absolute bottom-0 right-0 bg-red-500 hover:bg-red-600 text-white p-2 rounded-full shadow-lg transition-colors cursor-pointer"
+                aria-label="Remove profile image"
               >
-                <Upload className="h-4 w-4" />
+                <FaTrash className="h-5 w-5" />
               </button>
             </div>
-            
+            {/* Cropping/Resizing UI */}
+            {showCropper && (
+              <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+                <div className="bg-white p-6 rounded-lg shadow-lg w-[400px] h-[500px] flex flex-col">
+                  <h3 className="text-lg font-semibold text-center mb-4">Crop Your Image</h3>
+                  <div className="relative flex-1 min-h-[300px]">
+                    <Cropper
+                      image={imagePreview}
+                      crop={crop}
+                      zoom={zoom}
+                      aspect={1}
+                      onCropChange={setCrop}
+                      onZoomChange={setZoom}
+                      onCropComplete={onCropComplete}
+                    />
+                  </div>
+                  <div className="flex gap-4 mt-4 justify-center">
+                    <Button 
+                      type="button" 
+                      onClick={handleCropSave} 
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2"
+                    >
+                      Save Crop
+                    </Button>
+                    <Button 
+                      type="button" 
+                      onClick={() => setShowCropper(false)} 
+                      className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
             <input
               type="file"
               accept="image/*"
@@ -159,7 +253,6 @@ const EditProfile = ({ setIsEdit }: { setIsEdit: React.Dispatch<React.SetStateAc
               onChange={handleImageChange}
               className="hidden"
             />
-            
             <p className="text-sm text-gray-500 mt-2">
               Click to change profile picture (max 5MB)
             </p>
@@ -230,6 +323,24 @@ const EditProfile = ({ setIsEdit }: { setIsEdit: React.Dispatch<React.SetStateAc
 
           <FormField
             control={form.control}
+            name="miniDescription"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-gray-700 font-semibold">Mini Description</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    className="w-full p-3 bg-gray-50 border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 rounded-lg"
+                    placeholder="Short description about yourself..."
+                  />
+                </FormControl>
+                <FormMessage className="text-xs text-red-500" />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
             name="bio"
             render={({ field }) => (
               <FormItem>
@@ -266,7 +377,12 @@ const EditProfile = ({ setIsEdit }: { setIsEdit: React.Dispatch<React.SetStateAc
             
             <button
               type="button"
-              onClick={() => setIsEdit(false)}
+              onClick={() => {
+                setImagePreview(user?.image || '/Images/feed/avatar.png');
+                setImageFile(null);
+                setIsImageRemoved(false);
+                setIsEdit(false);
+              }}
               disabled={form.formState.isSubmitting || isUploading}
               className="flex-1 h-12 bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 text-gray-700 font-semibold rounded-lg transition-colors"
             >

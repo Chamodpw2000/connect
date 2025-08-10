@@ -2,8 +2,10 @@
 import { useAuth } from '@/hooks/useUser'
 import Image from 'next/image'
 
-const DisplayProfile = () => {
+const DisplayProfile =  () => {
       const { user } = useAuth();
+      console.log("user is ",user);
+
   return (
         <div className="max-w-2xl mx-auto p-8 bg-white rounded-xl shadow-lg flex flex-col items-center">
             <div className="relative group mb-6">
@@ -32,12 +34,16 @@ const DisplayProfile = () => {
                                                     <span className="block text-base text-gray-700 font-semibold">{user?.country || 'Unknown'}</span>
                                                 </div>
                                                 <div className="w-full">
-                                                    <span className="block text-xs text-gray-500 mb-1">Joined</span>
-                                                    <span className="block text-base text-gray-700 font-semibold">{new Date(user?.createdAt || '').toLocaleDateString()}</span>
+                                                    {/* <span className="block text-xs text-gray-500 mb-1">Joined</span>
+                                                    <span className="block text-base text-gray-700 font-semibold">{new Date(user?.createdAt || '').toLocaleDateString()}</span> */}
                                                 </div>
                                             </div>
                             </div>
                         </div>
+                <div className="bg-gray-100 rounded-lg p-6 shadow text-left mb-4">
+                    <span className="block text-xs text-gray-500 mb-2">Mini Description</span>
+                    <p className="text-gray-700 text-base">{user?.miniDescription || 'No mini description available'}</p>
+                </div>
                 <div className="bg-gray-100 rounded-lg p-6 shadow text-left">
                     <span className="block text-xs text-gray-500 mb-2">Bio</span>
                     <p className="text-gray-700 text-base">{user?.bio || 'No bio available'}</p>
