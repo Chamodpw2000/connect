@@ -8,12 +8,13 @@ import { toast } from "react-toastify";
 
  
 
-export const getPosts =  async( page: number) => {
+export const getPosts =  async( page: number, email?: string) => {
 
     try {
         const response = await api.get(POSTS_ENDPOINTS.GET_ALL, {
             params: {
-                page
+                page,
+                email
             }
         });
         return response.data;
@@ -27,7 +28,9 @@ export const getPosts =  async( page: number) => {
 
 
 
-  export const AddPost = async ({ formValues , imagePreviews, email}: { formValues: postFormType , imagePreviews: ImagePreview[] , email: string }) => {
+
+
+  export const addPost = async ({ formValues , imagePreviews, email}: { formValues: postFormType , imagePreviews: ImagePreview[] , email: string }) => {
 
  
         try {

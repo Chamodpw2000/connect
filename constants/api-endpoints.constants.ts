@@ -10,7 +10,7 @@ export const POSTS_ENDPOINTS = {
     DELETE: "posts/:id",
     GET_ALL: "posts",
     GET_BY_ID: "posts/:id",
-    GET_BY_USER: "posts/:userId",
+    GET_BY_USER: "posts/:email",
 
 }
 

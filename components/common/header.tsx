@@ -83,7 +83,7 @@ const Header: React.FC = () => {
         <DropdownMenuSeparator className="my-1 border-gray-200" />
         <DropdownMenuItem 
           className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
-          onClick={() => router.push('/profile')}
+          onClick={() => router.push(`/feed/${detailedUser?.email}`)}
         >
           <FaUser className="mr-2 h-4 w-4" />
           <span>Profile</span>

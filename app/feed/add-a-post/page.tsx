@@ -1,5 +1,5 @@
 'use client'
-import { AddPost } from '@/actions/post.actions';
+import { addPost } from '@/actions/post.actions';
 import { handleImageChange, removeImage } from '@/lib/handleImages';
 import { ImagePreview } from '@/types/posts';
 import { postFormSchema, postFormType } from '@/lib/validations/post';
@@ -25,13 +25,15 @@ const Page = () => {
         },
     });
 const onSubmit = async (formValues: z.infer<typeof postFormSchema>) => {
+    setIsSubmitting(true);
     if (!session?.user?.email) {
         alert('You must be logged in to create a post');
         return;
     }
-    await AddPost({ formValues, imagePreviews: imagesPreviews, email: session.user.email });
+    await addPost({ formValues, imagePreviews: imagesPreviews, email: session.user.email });
     setImagesPreviews([]); // Clear images after submission
     form.reset(); // Reset the form fields
+    setIsSubmitting(false); // Reset submitting state
     router.push('/feed'); // Redirect to feed after successful post creation
 };
 

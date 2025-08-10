@@ -35,16 +35,23 @@ export async function GET(request: Request) {
   // Get page parameter from query string
   const { searchParams } = new URL(request.url);
   const pageParam = searchParams.get('page');
+  const emailParam = searchParams.get('email');
+  const email = emailParam || undefined; // Use email if provided, otherwise undefined
   const page = pageParam ? parseInt(pageParam, 10) : 1;
   const postsPerPage = 5; // Define how many posts per page
 
   await dbConnect();
-  const allPostsCount = await Post.countDocuments();
+  // Build filter for posts
+  const filter: any = {};
+  if (email) {
+    filter['author.email'] = email;
+  }
+  const allPostsCount = await Post.countDocuments(filter);
   if (allPostsCount === 0) {
     return NextResponse.json({ message: 'No posts found' }, { status: 404 });
   }
   const totalPages = Math.ceil(allPostsCount / postsPerPage);
-  const posts = await Post.find({})
+  const posts = await Post.find(filter)
     .sort({ createdAt: -1 })
     .skip((page - 1) * postsPerPage)
     .limit(postsPerPage);
