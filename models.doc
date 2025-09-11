@@ -1,0 +1,46 @@
+user
+  email: string;
+  firstName: string;
+  lastName: string;
+  image: string;
+  role: string;
+  password: string;
+  isEmailVerified: boolean;
+  isActive: boolean;
+  bio: string;
+  birthdate: Date;
+  country: string;
+  miniDescription: string;
+  friends: mongoose.Types.ObjectId[];
+
+
+post
+  title: string;
+  content: string;
+  images: string[];
+  tags: string[];
+  createdAt: Date;
+  updatedAt: Date;
+  author: mongoose.Types.ObjectId;
+  comments: mongoose.Types.ObjectId[];
+  likes: mongoose.Types.ObjectId[];
+  isPublished: boolean;
+
+
+comments
+  content: string;
+  createdAt: Date;
+  updatedAt: Date;
+  author: mongoose.Types.ObjectId;
+  post: mongoose.Types.ObjectId;
+  isEdited: boolean;
+
+friendRequests
+  requester: mongoose.Types.ObjectId;
+  recipient: mongoose.Types.ObjectId;
+  status: 'pending' | 'accepted' | 'rejected';
+  createdAt: Date;
+  updatedAt: Date;
+
+
+
