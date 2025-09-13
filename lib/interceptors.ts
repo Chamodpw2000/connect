@@ -1,5 +1,6 @@
 
 import axios from 'axios';
+import { cookies } from 'next/headers';
 import { getServerAccessToken } from './cookies';
 
 // Create server-side Axios instance for API routes and server components
@@ -9,13 +10,28 @@ export const createServerApi = async () => {
     withCredentials: true
   });
 
+  // Get cookies once at the beginning
+  const cookieStore = await cookies();
+  const cookieString = cookieStore.toString();
+
   // Request interceptor for server-side: Attach access token from cookies
   serverApi.interceptors.request.use(async config => {
     const accessToken = await getServerAccessToken();
+    console.log(accessToken, "access token");
     
     if (accessToken) {
       config.headers['Authorization'] = `Bearer ${accessToken}`;
     }
+    
+    // Ensure cookies are forwarded in server-to-server requests
+    if (cookieString) {
+      config.headers['Cookie'] = cookieString;
+    }
+    
+    // Check the actual outgoing request headers
+    console.log(config.headers['Authorization'], "outgoing authorization header");
+    console.log(config.headers['Cookie'] ? 'Cookies forwarded' : 'No cookies', "cookie status");
+    
     return config;
   });
 
@@ -30,14 +46,16 @@ export const createServerApi = async () => {
         originalRequest._retry = true;
         
         try {
-          // Call refresh token endpoint
+          console.log('Attempting token refresh with cookies:', cookieString ? 'YES' : 'NO');
+          
+          // Call refresh token endpoint with cookies forwarded
           const refreshResponse = await axios.post(
             `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/auth/refresh-token`,
             {},
             {
-              withCredentials: true, // Send cookies (including refreshToken)
               headers: {
-                'Authorization': originalRequest.headers['Authorization'] || ''
+                'Authorization': originalRequest.headers['Authorization'] || '',
+                'Cookie': cookieString // Forward cookies from original request
               }
             }
           );
@@ -52,8 +70,24 @@ export const createServerApi = async () => {
           }
         } catch (refreshError) {
           console.error('Token refresh failed:', refreshError);
-          // If refresh fails, the error will be propagated
-          // You might want to redirect to login or handle this differently
+          
+          // Call existing logout API to clear cookies
+          try {
+            await axios.post(
+              `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/auth/logout`,
+              {},
+              {
+                headers: {
+                  'Cookie': cookieString
+                }
+              }
+            );
+          } catch (logoutError) {
+            console.error('Logout API call failed:', logoutError);
+          }
+          
+          // Throw the original error
+          throw refreshError;
         }
       }
       

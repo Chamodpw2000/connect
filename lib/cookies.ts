@@ -1,5 +1,13 @@
 import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
+import jwt, { JwtPayload } from 'jsonwebtoken';
+
+// Interface for your JWT payload
+export interface AccessTokenPayload extends JwtPayload {
+  userId: string;
+  email?: string;
+  role?: string;
+}
 
 /**
  * Server-side utility to get cookies
@@ -33,6 +41,82 @@ export function getAccessTokenFromRequest(req: NextRequest): string | null {
   }
   
   return null;
+}
+
+/**
+ * Verify and decode access token
+ * Returns the decoded payload if valid, null if invalid/expired
+ */
+export function verifyAccessToken(token: string): AccessTokenPayload | null {
+  try {
+    if (!process.env.ACCESS_TOKEN_SECRET) {
+      console.error('ACCESS_TOKEN_SECRET is not defined');
+      return null;
+    }
+    
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET) as AccessTokenPayload;
+
+    console.log(decoded,"dddddddddddddd");
+    
+    console.log('Token verified successfully:', { userId: decoded.userId });
+    return decoded;
+  } catch (error) {
+    console.error('Token verification failed:', error);
+    return null;
+  }
+}
+
+/**
+ * Get and verify access token from request
+ * Returns decoded payload if token is valid, null otherwise
+ */
+export function getVerifiedTokenFromRequest(req: NextRequest): AccessTokenPayload | null {
+  const token = getAccessTokenFromRequest(req);
+  if (!token) {
+    console.log('No access token found in request');
+    return null;
+  }
+  
+  return verifyAccessToken(token);
+}
+
+/**
+ * Get and verify access token from server-side cookies
+ * Use this in server components and API routes
+ */
+export async function getVerifiedServerToken(): Promise<AccessTokenPayload | null> {
+  const token = await getServerAccessToken();
+  if (!token) {
+    console.log('No access token found in server cookies');
+    return null;
+  }
+  
+  return verifyAccessToken(token);
+}
+
+/**
+ * Authentication middleware helper
+ * Returns user data if authenticated, null if not
+ */
+export async function authenticateRequest(req: NextRequest): Promise<{
+  isAuthenticated: boolean;
+  user: AccessTokenPayload | null;
+  error?: string;
+}> {
+  const tokenData = getVerifiedTokenFromRequest(req);
+  
+  if (!tokenData) {
+    return {
+      isAuthenticated: false,
+      user: null,
+      error: 'No valid access token provided'
+    };
+  }
+  
+  return {
+    isAuthenticated: true,
+    user: tokenData
+  };
 }
 
 /**
@@ -81,7 +165,9 @@ export async function removeServerCookie(name: string): Promise<void> {
  * Get access token from cookies (server-side)
  */
 export async function getServerAccessToken(): Promise<string | null> {
-  return await getServerCookie('accessToken');
+  const token = await getServerCookie('accessToken');
+  console.log('getServerAccessToken result:', token ? 'Token found' : 'No token found');
+  return token;
 }
 
 /**

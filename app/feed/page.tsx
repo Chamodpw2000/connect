@@ -24,7 +24,6 @@ function toPostForPostCardType(post: PostApiResponseType): PostForPostCardType {
   };
 }
 
-
     try {
       const response = await getPosts({ 
         page: pageParam ? parseInt(Array.isArray(pageParam) ? pageParam[0] : pageParam, 10) : 1, 

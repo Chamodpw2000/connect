@@ -7,10 +7,6 @@ import { postFormSchema, postFormType } from "@/lib/validations/post";
 import { PaginationInput } from "@/types/common";
 import { revalidatePath } from "next/cache";
 
-
-
-
-
 export const getPosts = async (
   paginationInput?: PaginationInput,
   email?: string

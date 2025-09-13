@@ -57,13 +57,29 @@ export const authOptions: NextAuthOptions = {
         if (!process.env.ACCESS_TOKEN_SECRET) {
           throw new Error('ACCESS_TOKEN_SECRET is not defined');
         }
-        const accessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: '15m' });
+        const accessToken = jwt.sign(
+          { 
+            userId: user._id, 
+            email: user.email, 
+            role: user.role 
+          }, 
+          process.env.ACCESS_TOKEN_SECRET as string, 
+          { expiresIn: '15m' }
+        );
     
         
         if (!process.env.REFRESH_TOKEN_SECRET) {
           throw new Error('REFRESH_TOKEN_SECRET is not defined');
         }
-        const refreshToken = jwt.sign({ userId: user._id }, process.env.REFRESH_TOKEN_SECRET as string, { expiresIn: '7d' });
+        const refreshToken = jwt.sign(
+          { 
+            userId: user._id, 
+            email: user.email, 
+            role: user.role 
+          }, 
+          process.env.REFRESH_TOKEN_SECRET as string, 
+          { expiresIn: '7d' }
+        );
   
         // Set refresh token in HTTP-only cookie
         (await cookies()).set('refreshToken', refreshToken, {

@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 import { authOptions } from '../auth/[...nextauth]/route';
 import mongoose from 'mongoose';
+import { authenticateRequest, getVerifiedTokenFromRequest } from '@/lib/cookies';
 
 type DetailedUser = {
   image: string;
@@ -29,9 +30,26 @@ function generateTags(title: string, content: string, authorName: string): strin
 
 
 export async function GET(request: Request) {
-
-
+  // 🔐 Authenticate the request
+  const auth = await authenticateRequest(request as any);
   
+  if (!auth.isAuthenticated) {
+    return NextResponse.json(
+      { error: auth.error || 'Unauthorized' }, 
+      { status: 401 }
+    );
+  }
+  
+  // 👤 Now you have access to user data!
+  const currentUser = auth.user!;
+  console.log('=== GET POSTS ENDPOINT CALLED ===');
+  
+  console.log('Authenticated user:', {
+    userId: currentUser.userId,
+    email: currentUser.email,
+    role: currentUser.role
+  });
+
   // Get query parameters
   const { searchParams } = new URL(request.url);
   const pageParam = searchParams.get('page');
@@ -53,13 +71,13 @@ export async function GET(request: Request) {
       filter['author.email'] = email;
     }
     const allPostsCount = await Post.countDocuments(filter);
-    console.log(allPostsCount);
+
     
     if (allPostsCount === 0) {
       return NextResponse.json({ message: 'No posts found for this email' }, { status: 200 });
     }
     const totalPages = Math.ceil(allPostsCount / postsPerPage);
-    console.log(totalPages);
+  
     
     let posts = await Post.find(filter)
       .sort({ [sortBy]: sortOrder })
@@ -69,15 +87,12 @@ export async function GET(request: Request) {
       .populate('comments')
       .populate('likes');
 
-      console.log(
-        posts
-      );
+    
       
     
 
 
-    console.log(posts);
-    
+   
     
     return NextResponse.json({ posts, totalPages }, { status: 200 });
   } catch (error) {
