@@ -12,6 +12,10 @@ export interface IUser extends Document {
     bio?: string;
     image?: string;
     miniDescription?: string;
+    friends?: mongoose.Types.ObjectId[];
+    emailVerified?: boolean;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 const UserSchema = new Schema<IUser>({
@@ -22,9 +26,12 @@ const UserSchema = new Schema<IUser>({
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
     birthdate: { type: Date },
     country: { type: String },
-    bio: { type: String},
-    image: { type: String},
-    miniDescription: { type: String}
+    bio: { type: String, default: '' },
+    image: { type: String, default: '' },
+    miniDescription: { type: String, default: '' },
+    friends: [{ type: Schema.Types.ObjectId, ref: 'User' , default: []}],
+    emailVerified: { type: Boolean, default: false },
+
  }, {
     timestamps: true,
 

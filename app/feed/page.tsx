@@ -1,28 +1,46 @@
-'use client'
+import { getPosts } from '@/actions/post.actions'
 import NewFeed from '@/components/feeds/newFeed'
 import Paginantion from '@/components/feeds/pagenation'
 import Posts from '@/components/feeds/posts'
-import { IPost } from '@/types/posts'
-import { useSession } from 'next-auth/react'
-import { useState } from 'react'
+import { PostApiResponseType, PostForPostCardType } from '@/types/posts'
 
-const page = () => {
-
-  ``
-  
-  
-    const [posts, setPosts] = useState<IPost[]>([])
+import { useSearchParams } from 'next/navigation'
 
 
-    
-  return (
-    <div className='w-full'>
+const page = async () => {
+    const searchParams = useSearchParams()
+    const pageParam = searchParams.get('page')
+    let posts: PostApiResponseType[] = [];
 
-        <NewFeed/>
-        <Posts posts={posts} />
-        <Paginantion setPosts={setPosts} />
-    </div>
-  )
+function toPostForPostCardType(post: PostApiResponseType): PostForPostCardType {
+  return {
+    _id: post._id,
+    title: post.title,
+    content: post.content,
+    author: post.author,
+    createdAt: post.createdAt,
+    updatedAt: post.updatedAt,
+    images: post.images,
+  };
+}
+
+
+    try {
+      const response = await getPosts({ page: pageParam ? parseInt(pageParam, 10) : 1, itemsPerPage: 5 });
+      posts = response?.posts || [];
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+      
+    }
+        
+    return (
+      <div className='w-full'>
+
+          <NewFeed/>
+          <Posts posts={posts.map(toPostForPostCardType)} />
+          <Paginantion allPages={5}  />
+      </div>
+    )
 }
 
 export default page

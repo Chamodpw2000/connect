@@ -1,14 +1,22 @@
-import { IPost, PostsProps } from '@/types/posts';
+
 import { useSession } from 'next-auth/react';
 import React from 'react';
 import PostCard from './postCard';
+import { PostForPostCardType } from '@/types/posts';
+
+
+interface PostsProps {
+  posts: PostForPostCardType[]
+}
 
 const Posts: React.FC<PostsProps> = ({ posts }) => {
+  
   const { data: session, status } = useSession();
+
 
   return (
     <div>
-      {
+      {Array.isArray(posts) && posts.length > 0 ? (
         posts.map(post => (
           <PostCard
             key={post._id}
@@ -20,10 +28,11 @@ const Posts: React.FC<PostsProps> = ({ posts }) => {
             onDelete={() => console.log('Deleted post:', post)}
             currentUserEmail={session?.user?.email || ''}
             className="my-4"
-
           />
-
-      ))}
+        ))
+      ) : (
+        <div className="text-center text-gray-400 py-8">No posts to display.</div>
+      )}
     </div>
   )
 }

@@ -1,56 +1,40 @@
 'use client'
-import React, { useEffect, useState } from 'react'
-import CustomButton from '../common/button'
-import { IPost } from '@/types/posts';
-import { getPosts } from '@/actions/post.actions';
-import { useSession } from 'next-auth/react';
+import { useEffect } from 'react';
+import CustomButton from '../common/button';
+import { useRouter, useSearchParams } from 'next/navigation';
 
+type PagenationProps = {
+  allPages: number;
+}
+const Paginantion = ({ allPages }: PagenationProps) => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pageParam = searchParams.get('page');
+  const currentPage = pageParam ? parseInt(pageParam, 10) : 1;
 
-const Paginantion = ({ setPosts, email }: { setPosts: React.Dispatch<React.SetStateAction<IPost[]>>, email?: string }) => {
-  const { data: session, status } = useSession();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [allPages, setAllPages] = useState(1);
-
-
+  // Set page=1 in query on mount if not present
   useEffect(() => {
-    const fetchPosts = async () => {
-      if (status === 'authenticated' && session) {
-        console.log('Fetching posts for page:', currentPage, 'Email:', email);
-        
-
-        const response = await getPosts(currentPage,email ||undefined);
-        setPosts(response.posts);
-        setAllPages(response.totalPages);
-      }
+    if (!pageParam) {
+      router.replace(`?page=1`);
     }
-    fetchPosts();
-  }, [status, session, currentPage]);
+  }, [pageParam, router]);
 
-  // Scroll to top after posts are loaded on page change
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
-  }, [currentPage]);
+  const goToPage = (page: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('page', String(page));
+    router.push(`?${params.toString()}`);
+  };
 
   return (
     <div className='w-full flex justify-between mt-[20px]'>
       <CustomButton
         label="Previous Page"
-        onClick={() => {
-          // Logic to load more posts
-          setCurrentPage((prev) => (prev - 1));
-
-        }}
+        onClick={() => goToPage(currentPage - 1)}
         disabled={currentPage === 1}
-
       />
       <CustomButton
         label="Next Page "
-        onClick={() => {
-          console.log('Current Page:', currentPage);
-          console.log('All Pages:', allPages);
-          // Logic to load more posts
-          setCurrentPage((prev) => (prev + 1));
-        }}
+        onClick={() => goToPage(currentPage + 1)}
         disabled={currentPage === allPages}
       />
     </div>

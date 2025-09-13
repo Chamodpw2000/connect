@@ -1,23 +1,46 @@
-'use client';
-import Paginantion from '@/components/feeds/pagenation';
-import Posts from '@/components/feeds/posts';
-import { IPost } from '@/types/posts';
-import { useParams } from 'next/navigation'
-import React, { useState } from 'react'
+import { getPosts } from '@/actions/post.actions'
+import NewFeed from '@/components/feeds/newFeed'
+import Paginantion from '@/components/feeds/pagenation'
+import Posts from '@/components/feeds/posts'
+import { PostApiResponseType, PostForPostCardType } from '@/types/posts'
 
-const page = () => {
-    const params = useParams();
-    const email = params.email ? decodeURIComponent(params.email as string) : '';
-   const [posts, setPosts] = useState<IPost[]>([])
-  return (
-    <div className='w-full mx-auto'>
+import { useSearchParams } from 'next/navigation'
 
-        <h1 className="text-2xl font-bold mb-6">Welcome to the Feed, {email}</h1>
-        <p className="text-gray-600">This is the feed page where you can see all your posts.</p>
-       <Posts posts={posts} />
-       <Paginantion setPosts={setPosts} email={email} />
-    </div>
-  )
+
+const page = async () => {
+    const searchParams = useSearchParams()
+    const pageParam = searchParams.get('page')
+    let posts: PostApiResponseType[] = [];
+
+function toPostForPostCardType(post: PostApiResponseType): PostForPostCardType {
+  return {
+    _id: post._id,
+    title: post.title,
+    content: post.content,
+    author: post.author,
+    createdAt: post.createdAt,
+    updatedAt: post.updatedAt,
+    images: post.images,
+  };
+}
+
+
+    try {
+      const response = await getPosts({ page: pageParam ? parseInt(pageParam, 10) : 1, itemsPerPage: 5 });
+      posts = response?.posts || [];
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+      
+    }
+        
+    return (
+      <div className='w-full'>
+
+          <NewFeed/>
+          <Posts posts={posts.map(toPostForPostCardType)} />
+          <Paginantion allPages={5}  />
+      </div>
+    )
 }
 
 export default page

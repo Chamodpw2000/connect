@@ -14,36 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { FaArrowCircleLeft } from "react-icons/fa";
 import { FaArrowCircleRight } from "react-icons/fa";
-
-// Define the interfaces to match your Post model
-interface IAuthor {
-    email: string;
-    firstName: string;
-    lastName: string;
-    image: string;
-    role: string;
-}
-
-interface IPost {
-    _id: string;
-    title: string;
-    content: string;
-    author: IAuthor;
-    createdAt: string | Date;
-    updatedAt: string | Date;
-    images?: string[];
-}
-
-interface PostCardProps {
-    post: IPost;
-    onLike?: (postId: string) => void;
-    onComment?: (postId: string) => void;
-    onShare?: (postId: string) => void;
-    onEdit?: (postId: string) => void;
-    onDelete?: (postId: string) => void;
-    currentUserEmail?: string;
-    className?: string;
-}
+import { PostCardProps } from '@/types/posts';
 
 const PostCard: React.FC<PostCardProps> = ({
     post,
@@ -60,7 +31,10 @@ const PostCard: React.FC<PostCardProps> = ({
     const [showFullContent, setShowFullContent] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-    const isAuthor = currentUserEmail === post.author.email;
+    const isAuthor =
+        typeof post.author === 'object' && 'email' in post.author
+            ? currentUserEmail === (post.author as { email: string }).email
+            : false;
     const shouldTruncateContent = post.content.length > 300;
     const displayContent = shouldTruncateContent && !showFullContent
         ? post.content.substring(0, 300) + '...'
@@ -99,22 +73,33 @@ const PostCard: React.FC<PostCardProps> = ({
                     <div className="flex items-center space-x-3">
                         <Avatar className="h-12 w-12">
                             <AvatarImage
-                                src={post.author.image}
-                                alt={`${post.author.firstName} ${post.author.lastName}`}
+                                src={typeof post.author === 'object' && 'image' in post.author ? String(post.author.image) : ''}
+                                alt={
+                                    typeof post.author === 'object' && 'firstName' in post.author && 'lastName' in post.author
+                                        ? `${post.author.firstName} ${post.author.lastName}`
+                                        : 'User Avatar'
+                                }
                                 className="object-cover"
                             />
                             <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
-                                {post.author.firstName.charAt(0).toUpperCase() +
-                                    post.author.lastName.charAt(0).toUpperCase()}
+                                {typeof post.author === 'object' &&
+                                 typeof (post.author as any).firstName === 'string' &&
+                                 typeof (post.author as any).lastName === 'string'
+                                    ? (post.author as any).firstName.charAt(0).toUpperCase() + (post.author as any).lastName.charAt(0).toUpperCase()
+                                    : ''}
                             </AvatarFallback>
                         </Avatar>
                         <div>
                             <h3 className="font-semibold text-gray-900 text-sm">
-                                {post.author.firstName} {post.author.lastName}
+                                {typeof post.author === 'object' && 'firstName' in post.author && 'lastName' in post.author
+                                    ? `${(post.author as { firstName: string; lastName: string }).firstName} ${(post.author as { firstName: string; lastName: string }).lastName}`
+                                    : ''}
                             </h3>
                             <div className="flex items-center space-x-2 text-xs text-gray-500">
                                 <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-                                    {post.author.role}
+                                    {typeof post.author === 'object' && 'role' in post.author
+                                        ? (post.author as { role: string }).role
+                                        : ''}
                                 </span>
                                 <span>•</span>
                                 <span>{formatDate(post.createdAt)}</span>

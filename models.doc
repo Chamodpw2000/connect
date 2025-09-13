@@ -6,12 +6,14 @@ user
   role: string;
   password: string;
   isEmailVerified: boolean;
-  isActive: boolean;
   bio: string;
   birthdate: Date;
   country: string;
   miniDescription: string;
   friends: mongoose.Types.ObjectId[];
+  createdAt: Date;
+  updatedAt: Date;
+
 
 
 post
@@ -24,7 +26,7 @@ post
   author: mongoose.Types.ObjectId;
   comments: mongoose.Types.ObjectId[];
   likes: mongoose.Types.ObjectId[];
-  isPublished: boolean;
+  visibility: 'private' | 'friends' | 'public';
 
 
 comments
@@ -41,6 +43,7 @@ friendRequests
   status: 'pending' | 'accepted' | 'rejected';
   createdAt: Date;
   updatedAt: Date;
+
 
 
 

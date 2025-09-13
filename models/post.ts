@@ -5,9 +5,16 @@ interface IPost extends Document {
   title: string;
   content: string;
   author: mongoose.Types.ObjectId;
+
+  images?: string[];
+  tags?: string[];
+  comments: mongoose.Types.ObjectId[];
+  likes: mongoose.Types.ObjectId[];
+  visibility: 'private' | 'friends' | 'public';
   createdAt: Date;
   updatedAt: Date;
-  images?: string[];
+
+  
 }
 
 const PostSchema = new Schema<IPost>(
@@ -20,9 +27,11 @@ const PostSchema = new Schema<IPost>(
       required: true,
     },
 
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now },
     images: [{ type: String }], 
+    tags: [{ type: String }],
+    comments: [{ type: Schema.Types.ObjectId, ref: 'Comment', default: [] }],
+    likes: [{ type: Schema.Types.ObjectId, ref: 'User', default: [] }],
+    visibility: { type: String, enum: ['private', 'friends', 'public']},
   },
   
   { timestamps: true }
@@ -31,3 +40,4 @@ const PostSchema = new Schema<IPost>(
 // Prevent model overwrite issue in dev
 const Post = models.Post || model<IPost>('Post', PostSchema);
 export default Post;
+export type { IPost };
