@@ -1,6 +1,6 @@
 "use server"
 import { POSTS_ENDPOINTS } from "@/constants/api-endpoints.constants";
-import api from "@/lib/interceptors";
+import createServerApi from "@/lib/interceptors";
 import mediaUpload from "@/lib/superbaseClient";
 import { validateInput } from "@/lib/validations/inputValidator";
 import { postFormSchema, postFormType } from "@/lib/validations/post";
@@ -24,7 +24,8 @@ export const getPosts = async (
   };
   if (email) params.email = email;
   const queryString = new URLSearchParams(params).toString();
-  const response = await api.get(POSTS_ENDPOINTS.GET_ALL + `?${queryString}`);
+  const axiosInstance = await createServerApi();
+  const response = await axiosInstance.get(POSTS_ENDPOINTS.GET_ALL + `?${queryString}`);
   return response.data;
 }
 
@@ -41,7 +42,8 @@ export const addPost = async ({ data }: { data: postFormType }) => {
         );
         imageurls = await Promise.all(promises) as string[];
     }
-    const response = await api.post('/posts', {
+    const axiosInstance = await createServerApi();
+    const response = await axiosInstance.post(POSTS_ENDPOINTS.CREATE, {
         title: data.title,
         description: data.description,
         images: imageurls,

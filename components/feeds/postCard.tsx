@@ -31,10 +31,13 @@ const PostCard: React.FC<PostCardProps> = ({
     const [showFullContent, setShowFullContent] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-    const isAuthor =
-        typeof post.author === 'object' && 'email' in post.author
-            ? currentUserEmail === (post.author as { email: string }).email
-            : false;
+    // Helper function to safely check if author exists and has the required properties
+    const hasAuthor = (author: any): author is { email: string; firstName: string; lastName?: string; image?: string } => {
+        return typeof author === 'object' && author !== null && 'email' in author;
+    };
+
+    const isAuthor = hasAuthor(post.author) && currentUserEmail === post.author.email;
+    
     const shouldTruncateContent = post.content.length > 300;
     const displayContent = shouldTruncateContent && !showFullContent
         ? post.content.substring(0, 300) + '...'
@@ -73,31 +76,29 @@ const PostCard: React.FC<PostCardProps> = ({
                     <div className="flex items-center space-x-3">
                         <Avatar className="h-12 w-12">
                             <AvatarImage
-                                src={typeof post.author === 'object' && 'image' in post.author ? String(post.author.image) : ''}
+                                src={hasAuthor(post.author) && post.author.image ? String(post.author.image) : ''}
                                 alt={
-                                    typeof post.author === 'object' && 'firstName' in post.author && 'lastName' in post.author
-                                        ? `${post.author.firstName} ${post.author.lastName}`
+                                    hasAuthor(post.author)
+                                        ? `${post.author.firstName} ${post.author.lastName || ''}`
                                         : 'User Avatar'
                                 }
                                 className="object-cover"
                             />
                             <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
-                                {typeof post.author === 'object' &&
-                                 typeof (post.author as any).firstName === 'string' &&
-                                 typeof (post.author as any).lastName === 'string'
-                                    ? (post.author as any).firstName.charAt(0).toUpperCase() + (post.author as any).lastName.charAt(0).toUpperCase()
-                                    : ''}
+                                {hasAuthor(post.author) && post.author.firstName
+                                    ? post.author.firstName.charAt(0).toUpperCase() + (post.author.lastName?.charAt(0).toUpperCase() || '')
+                                    : 'U'}
                             </AvatarFallback>
                         </Avatar>
                         <div>
                             <h3 className="font-semibold text-gray-900 text-sm">
-                                {typeof post.author === 'object' && 'firstName' in post.author && 'lastName' in post.author
-                                    ? `${(post.author as { firstName: string; lastName: string }).firstName} ${(post.author as { firstName: string; lastName: string }).lastName}`
-                                    : ''}
+                                {hasAuthor(post.author)
+                                    ? `${post.author.firstName} ${post.author.lastName || ''}`
+                                    : 'Unknown User'}
                             </h3>
                             <div className="flex items-center space-x-2 text-xs text-gray-500">
                                 <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-                                    {typeof post.author === 'object' && 'role' in post.author
+                                    {typeof post.author === 'object' && post.author !== null && 'role' in post.author
                                         ? (post.author as { role: string }).role
                                         : ''}
                                 </span>

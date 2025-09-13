@@ -1,6 +1,8 @@
 import jwt from "jsonwebtoken";
 import axios from "axios";
 import { NextRequest } from "next/server";
+import { cookies } from 'next/headers';
+import { getAccessTokenFromRequest } from '@/lib/cookies';
 
 // Helper: Validate Credentials (JWT) token
 function validateCredentialsAccessToken(token: string) {
@@ -67,11 +69,8 @@ async function refreshGoogleToken(refreshToken: string) {
 export async function POST(req: NextRequest) {
 
   
-  // Get access token from body or header
-  let accessToken = "";
-
-
-    accessToken =  req.headers.get("authorization")?.replace("Bearer ", "") || "";
+  // Get access token from cookies or headers
+  const accessToken = getAccessTokenFromRequest(req);
 
      
 
@@ -96,12 +95,28 @@ export async function POST(req: NextRequest) {
   if (refreshToken) {
     const newCredToken = refreshCredentialsToken(refreshToken);
     if (newCredToken) {
+      // Set new access token in cookie
+      (await cookies()).set('accessToken', newCredToken.accessToken, {
+        httpOnly: false, // Allow client-side access
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/',
+        maxAge: 60 * 15 // 15 minutes
+      });
       return Response.json({ provider: "credentials", accessToken: newCredToken.accessToken });
     }
 
     // Try to refresh Google token
     const newGoogleToken = await refreshGoogleToken(refreshToken);
     if (newGoogleToken) {
+      // Set new access token in cookie for Google token as well
+      (await cookies()).set('accessToken', newGoogleToken.accessToken, {
+        httpOnly: false, // Allow client-side access
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        path: '/',
+        maxAge: 60 * 15 // 15 minutes
+      });
       return Response.json({ provider: "google", ...newGoogleToken });
     }
   }

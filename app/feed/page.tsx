@@ -4,12 +4,12 @@ import Paginantion from '@/components/feeds/pagenation'
 import Posts from '@/components/feeds/posts'
 import { PostApiResponseType, PostForPostCardType } from '@/types/posts'
 
-import { useSearchParams } from 'next/navigation'
+interface PageProps {
+  searchParams: { [key: string]: string | string[] | undefined }
+}
 
-
-const page = async () => {
-    const searchParams = useSearchParams()
-    const pageParam = searchParams.get('page')
+const page = async ({ searchParams }: PageProps) => {
+    const pageParam = searchParams.page
     let posts: PostApiResponseType[] = [];
 
 function toPostForPostCardType(post: PostApiResponseType): PostForPostCardType {
@@ -26,7 +26,10 @@ function toPostForPostCardType(post: PostApiResponseType): PostForPostCardType {
 
 
     try {
-      const response = await getPosts({ page: pageParam ? parseInt(pageParam, 10) : 1, itemsPerPage: 5 });
+      const response = await getPosts({ 
+        page: pageParam ? parseInt(Array.isArray(pageParam) ? pageParam[0] : pageParam, 10) : 1, 
+        itemsPerPage: 5 
+      });
       posts = response?.posts || [];
     } catch (error) {
       console.error('Error fetching posts:', error);

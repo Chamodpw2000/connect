@@ -1,3 +1,4 @@
+'use client';
 import { removeImage, handleImageChange } from '@/lib/handleImages';
 import { ImagePreview, postFormType, postFormSchema } from '@/lib/validations/post';
 import { zodResolver } from '@hookform/resolvers/zod';

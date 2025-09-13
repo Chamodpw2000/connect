@@ -8,8 +8,9 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { Avatar } from '@radix-ui/react-avatar';
-import axios from 'axios';
 import { signOut, useSession } from 'next-auth/react';
+import { clearAuthCookies } from '@/lib/clientCookies';
+import { clientApi } from '@/lib/clientApi';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -30,7 +31,7 @@ const Header: React.FC = () => {
     const fetchUserDetails = async () => {
       if (status === 'authenticated' && session?.user) {
         try {
-          const response = await axios.get(`/api/user/${session.user.email}`);
+          const response = await clientApi.get(`/user/${session.user.email}`);
           setDetailedUser(response.data);
       
         } catch (error) {
@@ -43,7 +44,18 @@ const Header: React.FC = () => {
     fetchUserDetails();
   }, [status]);
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    try {
+      // Call logout API to clear server-side cookies
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+    } catch (error) {
+      console.error('Logout API error:', error);
+    }
+    
+    clearAuthCookies(); // Clear client-side access token cookie
     signOut();
     setIsMobileMenuOpen(false);
   };

@@ -3,13 +3,11 @@
 import dbConnect from '@/lib/mongoose';
 import User from '@/models/user';
 import { compare } from 'bcrypt';
-import { error } from 'console';
 import jwt from 'jsonwebtoken';
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { cookies } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
 
 export interface UserData {
   id: string;
@@ -75,6 +73,16 @@ export const authOptions: NextAuthOptions = {
           path: '/',
           maxAge: 60 * 60 * 24 * 7 // 7 days
         });
+
+        // Set access token in cookie (accessible to client-side JavaScript)
+        (await cookies()).set('accessToken', accessToken, {
+          httpOnly: false, // Allow client-side access
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          path: '/',
+          maxAge: 60 * 15 // 15 minutes
+        });
+
         return {
           id: user._id.toString(),
           email: user.email,
