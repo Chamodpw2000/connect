@@ -1,10 +1,10 @@
+import { authenticateRequest } from '@/lib/cookies';
 import dbConnect from '@/lib/mongoose';
-import Post from '@/models/post';
+import { Post, User } from '@/models';
+import mongoose from 'mongoose';
 import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 import { authOptions } from '../auth/[...nextauth]/route';
-import mongoose from 'mongoose';
-import User from '@/models/user';
 
 type DetailedUser = {
   image: string;
@@ -30,6 +30,18 @@ function generateTags(title: string, content: string, authorName: string): strin
 
 
 export async function GET(request: Request) {
+  const auth = await authenticateRequest(request as any);
+  
+  if (!auth.isAuthenticated) {
+    return NextResponse.json(
+      { error: auth.error || 'Unauthorized' }, 
+      { status: 401 }
+    );
+  }
+  
+  
+
+
   // Get query parameters
   const { searchParams } = new URL(request.url);
   const pageParam = searchParams.get('page');
@@ -51,17 +63,32 @@ export async function GET(request: Request) {
       filter['author.email'] = email;
     }
     const allPostsCount = await Post.countDocuments(filter);
+
+    
     if (allPostsCount === 0) {
       return NextResponse.json({ message: 'No posts found for this email' }, { status: 200 });
     }
     const totalPages = Math.ceil(allPostsCount / postsPerPage);
-    const posts = await Post.find(filter)
+  
+    
+    let posts = await Post.find(filter)
       .sort({ [sortBy]: sortOrder })
       .skip((page - 1) * postsPerPage)
       .limit(postsPerPage)
       .populate('author')
       .populate('comments')
       .populate('likes');
+
+    
+      
+
+    
+      
+    
+
+
+   
+    
     return NextResponse.json({ posts, totalPages }, { status: 200 });
   } catch (error) {
     console.error('Error fetching posts:', error);
@@ -87,7 +114,7 @@ export async function POST(request: Request) {
 
     const data = await request.json();
 
-    console.log('Received post data:', data);
+    
 
 
 

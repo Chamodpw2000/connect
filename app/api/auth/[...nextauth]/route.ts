@@ -3,13 +3,11 @@
 import dbConnect from '@/lib/mongoose';
 import User from '@/models/user';
 import { compare } from 'bcrypt';
-import { error } from 'console';
 import jwt from 'jsonwebtoken';
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { cookies } from 'next/headers';
-import { NextRequest, NextResponse } from 'next/server';
 
 export interface UserData {
   id: string;
@@ -59,13 +57,29 @@ export const authOptions: NextAuthOptions = {
         if (!process.env.ACCESS_TOKEN_SECRET) {
           throw new Error('ACCESS_TOKEN_SECRET is not defined');
         }
-        const accessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: '15m' });
+        const accessToken = jwt.sign(
+          { 
+            userId: user._id, 
+            email: user.email, 
+            role: user.role 
+          }, 
+          process.env.ACCESS_TOKEN_SECRET as string, 
+          { expiresIn: '15m' }
+        );
     
         
         if (!process.env.REFRESH_TOKEN_SECRET) {
           throw new Error('REFRESH_TOKEN_SECRET is not defined');
         }
-        const refreshToken = jwt.sign({ userId: user._id }, process.env.REFRESH_TOKEN_SECRET as string, { expiresIn: '7d' });
+        const refreshToken = jwt.sign(
+          { 
+            userId: user._id, 
+            email: user.email, 
+            role: user.role 
+          }, 
+          process.env.REFRESH_TOKEN_SECRET as string, 
+          { expiresIn: '7d' }
+        );
   
         // Set refresh token in HTTP-only cookie
         (await cookies()).set('refreshToken', refreshToken, {
@@ -75,6 +89,16 @@ export const authOptions: NextAuthOptions = {
           path: '/',
           maxAge: 60 * 60 * 24 * 7 // 7 days
         });
+
+        // Set access token in cookie (accessible to client-side JavaScript)
+        (await cookies()).set('accessToken', accessToken, {
+          httpOnly: false, // Allow client-side access
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          path: '/',
+          maxAge: 60 * 15 // 15 minutes
+        });
+
         return {
           id: user._id.toString(),
           email: user.email,

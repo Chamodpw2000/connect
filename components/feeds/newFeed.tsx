@@ -5,30 +5,17 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
 import { Button } from '../ui/button';
+import { NewFeedProps } from '@/types/posts';
 
 
-const NewFeed = () => {
+
+
+const NewFeed = ({ user }: NewFeedProps) => {
     const navigate = useRouter();
     type DetailedUser = { image?: string;[key: string]: any };
-    const [detailedUser, setDetailedUser] = React.useState<DetailedUser | null>(null);
-    const { data: session, status } = useSession();
+ 
 
-    useEffect(() => {
-        const fetchUserDetails = async () => {
-            if (status === 'authenticated' && session?.user) {
-                try {
-                    const response = await axios.get(`/api/user/${session.user.email}`);
-                    setDetailedUser(response.data);
-           
-                } catch (error) {
-                    console.error('Error fetching user details:', error);
-                }
-            } else {
-                setDetailedUser(null);
-            }
-        };
-        fetchUserDetails();
-    }, [status]);
+   
     return (
         <div className='w-full flex flex-col gap-y-5 border-2 border-secondary rounded-lg p-5'>
         <div className='w-full  flex gap-x-5 items-center'>
@@ -36,7 +23,7 @@ const NewFeed = () => {
 
             <Image
 
-                src={detailedUser?.image || '/Images/feed/avatar.png'}
+                src={user?.image || '/Images/feed/avatar.png'}
                 alt="User Avatar"
                 width={80}
                 height={80}
@@ -45,7 +32,7 @@ const NewFeed = () => {
 
 
             <div>
-                What is on your mind, {detailedUser?.firstName || 'User'}?
+                What is on your mind, {user?.firstName || 'User'}?
             </div>
         </div>
 

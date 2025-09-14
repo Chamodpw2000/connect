@@ -8,13 +8,15 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { Avatar } from '@radix-ui/react-avatar';
-import axios from 'axios';
 import { signOut, useSession } from 'next-auth/react';
+import { clearAuthCookies } from '@/lib/clientCookies';
+import { clientApi } from '@/lib/clientApi';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { FaCog, FaSearch, FaSignOutAlt, FaUser } from 'react-icons/fa';
+import { logOut } from '@/actions/auth.actions';
 
 const Header: React.FC = () => {
   const { data: session, status } = useSession();
@@ -30,7 +32,7 @@ const Header: React.FC = () => {
     const fetchUserDetails = async () => {
       if (status === 'authenticated' && session?.user) {
         try {
-          const response = await axios.get(`/api/user/${session.user.email}`);
+          const response = await clientApi.get(`/user/${session.user.email}`);
           setDetailedUser(response.data);
       
         } catch (error) {
@@ -43,10 +45,7 @@ const Header: React.FC = () => {
     fetchUserDetails();
   }, [status]);
 
-  const handleSignOut = () => {
-    signOut();
-    setIsMobileMenuOpen(false);
-  };
+  
 
   const ProfileDropdown = () => (
     <DropdownMenu>
@@ -98,7 +97,10 @@ const Header: React.FC = () => {
         <DropdownMenuSeparator className="my-1 border-gray-200" />
         <DropdownMenuItem 
           className="flex items-center px-2 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer"
-          onClick={handleSignOut}
+          onClick={() => {
+            logOut();
+            setIsMobileMenuOpen(false);
+          }}
         >
           <FaSignOutAlt className="mr-2 h-4 w-4" />
           <span>Sign out</span>
