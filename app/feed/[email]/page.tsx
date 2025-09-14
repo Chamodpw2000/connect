@@ -36,26 +36,26 @@ const Feeds = async ({ searchParams }: PageProps) => {
   }
 
   try {
-    const response = await getPosts({ 
-      page: pageParam ? parseInt(Array.isArray(pageParam) ? pageParam[0] : pageParam, 10) : 1, 
-      itemsPerPage: 5 
+    const response = await getPosts({
+      page: pageParam ? parseInt(Array.isArray(pageParam) ? pageParam[0] : pageParam, 10) : 1,
+      itemsPerPage: 5
     }, session?.user?.email || '');
-   
+
     // console.log(response.posts);
-    
+
     posts = response?.posts || [];
     totalPages = response?.totalPages || 1;
   } catch (error) {
     console.error('Error fetching posts:', error);
-    
+
   }
 
-  let user:UserApiResponseType | null = null;
+  let user: UserApiResponseType | null = null;
 
   try {
     user = await getCurrentUser(session?.user?.email || '');
- 
-    
+
+
   } catch (error) {
     console.error('Error fetching user session:', error);
   }
@@ -64,11 +64,11 @@ const Feeds = async ({ searchParams }: PageProps) => {
   return (
     <div className='w-full'>
 
-          <NewFeed user={user} />
-          <Posts posts={posts.map(toPostForPostCardType)} />
-          <Paginantion allPages={totalPages}/>
-      </div>
-    )
+      <NewFeed user={user} />
+      <Posts posts={posts.map(toPostForPostCardType)} />
+      <Paginantion allPages={totalPages} />
+    </div>
+  )
 }
 
 export default Feeds;

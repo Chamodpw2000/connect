@@ -2,8 +2,14 @@
 import CustomButton from '@/components/common/button'
 import DisplayProfile from '@/components/profile/display'
 import EditProfile from '@/components/profile/edit'
+import { UserApiResponseType } from '@/types/user'
 import React from 'react'
-const EditProfileClientWrapper = () => {
+
+interface EditProfileClientWrapperProps {
+  user?: UserApiResponseType;
+}
+
+const EditProfileClientWrapper = ({ user }: EditProfileClientWrapperProps) => {
 
     const [isEdit, setIsEdit] = React.useState(false);
 
@@ -26,7 +32,7 @@ const EditProfileClientWrapper = () => {
 
                 </div>
     <div className="flex flex-3 p-5 w-full flex-col items-center justify-start">
-       {isEdit ? <EditProfile setIsEdit={setIsEdit}/> : <DisplayProfile  />}
+       {isEdit ? <EditProfile setIsEdit={setIsEdit} user={user} /> : <DisplayProfile user={user} />}
 
         {!isEdit && <CustomButton label="Edit Profile" onClick={() => setIsEdit(true)} className='mt-[20px]' />}
        

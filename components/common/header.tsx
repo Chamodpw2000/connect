@@ -1,4 +1,5 @@
 'use client'
+import { logOut } from '@/actions/auth.actions';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,43 +8,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import { UserApiResponseType } from '@/types/user';
 import { Avatar } from '@radix-ui/react-avatar';
-import { signOut, useSession } from 'next-auth/react';
-import { clearAuthCookies } from '@/lib/clientCookies';
-import { clientApi } from '@/lib/clientApi';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { FaCog, FaSearch, FaSignOutAlt, FaUser } from 'react-icons/fa';
-import { logOut } from '@/actions/auth.actions';
 
-const Header: React.FC = () => {
-  const { data: session, status } = useSession();
+interface HeaderProps {
+  user: UserApiResponseType | null;
+}
+
+const Header: React.FC<HeaderProps> = ({ user }) => {
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [detailedUser, setDetailedUser] = useState<any>(null);
   const router = useRouter();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
   }
 
-  useEffect(() => {
-    const fetchUserDetails = async () => {
-      if (status === 'authenticated' && session?.user) {
-        try {
-          const response = await clientApi.get(`/user/${session.user.email}`);
-          setDetailedUser(response.data);
-      
-        } catch (error) {
-          console.error('Error fetching user details:', error);
-        }
-      } else {
-        setDetailedUser(null);
-      }
-    };
-    fetchUserDetails();
-  }, [status]);
 
   
 
@@ -52,17 +37,19 @@ const Header: React.FC = () => {
       <DropdownMenuTrigger asChild>
         <div className="cursor-pointer">
           <Avatar className="h-10 w-10 rounded-full border-2 border-gray-300 hover:border-blue-500 transition-colors duration-200 flex items-center justify-center overflow-hidden">
-            {detailedUser?.image ? (
+            {user?.image ? (
               <Image
                 width={40}
                 height={40}
-                src={detailedUser.image}
+                src={user.image}
                 alt="Profile"
                 className="rounded-full object-cover w-full h-full"
               />
             ) : (
               <div className="flex items-center justify-center w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold text-sm rounded-full">
-                {detailedUser?.firstName?.charAt(0).toUpperCase() + detailedUser?.lastName?.charAt(0).toUpperCase() || 'NA'}
+                {(user?.firstName && user?.lastName)
+                  ? user.firstName.charAt(0).toUpperCase() + user.lastName.charAt(0).toUpperCase()
+                  : 'NA'}
               </div>
             )}
           </Avatar>
@@ -72,17 +59,17 @@ const Header: React.FC = () => {
         <DropdownMenuLabel className="px-2 py-1.5">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium text-gray-900">
-              {detailedUser?.firstName} {detailedUser?.lastName}
+              {user?.firstName} {user?.lastName}
             </p>
             <p className="text-xs text-gray-500 truncate">
-              {detailedUser?.email}
+              {user?.email}
             </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="my-1 border-gray-200" />
         <DropdownMenuItem 
           className="flex items-center px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer"
-          onClick={() => router.push(`/feed/${detailedUser?.email}`)}
+          onClick={() => router.push(`/feed/${user?.email}`)}
         >
           <FaUser className="mr-2 h-4 w-4" />
           <span>Profile</span>
@@ -149,7 +136,7 @@ const Header: React.FC = () => {
               Reviews
             </a>
             
-            {!session ? (
+            {!user ? (
               <div className="flex space-x-3">
                 <Link
                   href="/auth/login"
@@ -163,7 +150,7 @@ const Header: React.FC = () => {
                 </Link>
               </div>
             ) : (
-              session.user && detailedUser && <ProfileDropdown />
+              user &&  <ProfileDropdown />
             )}
           </div>
         </div>
@@ -185,7 +172,7 @@ const Header: React.FC = () => {
           </div>
           
           <div className="flex items-center space-x-3">
-            {session && detailedUser && <ProfileDropdown />}
+            {user && <ProfileDropdown />}
             <button
               onClick={toggleMobileMenu}
               className="p-2 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
@@ -261,7 +248,7 @@ const Header: React.FC = () => {
                 Reviews
               </a>
               
-              {!session && (
+              {!user && (
                 <div className="flex flex-col space-y-2 pt-4 border-t border-gray-200 mt-4">
                   <Link
                     href="/auth/login"

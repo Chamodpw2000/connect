@@ -19,6 +19,7 @@ export const POSTS_ENDPOINTS = {
 
 export const USERS_ENDPOINTS = {
     GET_BY_EMAIL: "user/:email",
+    UPDATE: "edit-profile/:id",
 }
 
 
