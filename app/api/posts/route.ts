@@ -1,10 +1,10 @@
+import { authenticateRequest } from '@/lib/cookies';
 import dbConnect from '@/lib/mongoose';
-import { Post, Comment, User } from '@/models';
+import { Post, User } from '@/models';
+import mongoose from 'mongoose';
 import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 import { authOptions } from '../auth/[...nextauth]/route';
-import mongoose from 'mongoose';
-import { authenticateRequest, getVerifiedTokenFromRequest } from '@/lib/cookies';
 
 type DetailedUser = {
   image: string;
@@ -30,7 +30,6 @@ function generateTags(title: string, content: string, authorName: string): strin
 
 
 export async function GET(request: Request) {
-  // 🔐 Authenticate the request
   const auth = await authenticateRequest(request as any);
   
   if (!auth.isAuthenticated) {
@@ -40,15 +39,8 @@ export async function GET(request: Request) {
     );
   }
   
-  // 👤 Now you have access to user data!
-  const currentUser = auth.user!;
-  console.log('=== GET POSTS ENDPOINT CALLED ===');
   
-  console.log('Authenticated user:', {
-    userId: currentUser.userId,
-    email: currentUser.email,
-    role: currentUser.role
-  });
+
 
   // Get query parameters
   const { searchParams } = new URL(request.url);
@@ -89,6 +81,9 @@ export async function GET(request: Request) {
 
     
       
+
+    
+      
     
 
 
@@ -119,7 +114,7 @@ export async function POST(request: Request) {
 
     const data = await request.json();
 
-    console.log('Received post data:', data);
+    
 
 
 

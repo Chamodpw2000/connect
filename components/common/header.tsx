@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { FaCog, FaSearch, FaSignOutAlt, FaUser } from 'react-icons/fa';
+import { logOut } from '@/actions/auth.actions';
 
 const Header: React.FC = () => {
   const { data: session, status } = useSession();
@@ -44,21 +45,7 @@ const Header: React.FC = () => {
     fetchUserDetails();
   }, [status]);
 
-  const handleSignOut = async () => {
-    try {
-      // Call logout API to clear server-side cookies
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include'
-      });
-    } catch (error) {
-      console.error('Logout API error:', error);
-    }
-    
-    clearAuthCookies(); // Clear client-side access token cookie
-    signOut();
-    setIsMobileMenuOpen(false);
-  };
+  
 
   const ProfileDropdown = () => (
     <DropdownMenu>
@@ -110,7 +97,10 @@ const Header: React.FC = () => {
         <DropdownMenuSeparator className="my-1 border-gray-200" />
         <DropdownMenuItem 
           className="flex items-center px-2 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer"
-          onClick={handleSignOut}
+          onClick={() => {
+            logOut();
+            setIsMobileMenuOpen(false);
+          }}
         >
           <FaSignOutAlt className="mr-2 h-4 w-4" />
           <span>Sign out</span>

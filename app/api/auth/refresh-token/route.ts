@@ -73,45 +73,35 @@ async function refreshGoogleToken(refreshToken: string) {
 
 // Main function: API route handler
 export async function POST(req: NextRequest) {
-  console.log('=== REFRESH TOKEN ENDPOINT CALLED ===');
   
   // Get access token from cookies or headers
   const accessToken = getAccessTokenFromRequest(req);
-  console.log('Access token found:', accessToken ? 'YES' : 'NO');
 
   // Always get refresh token from HTTP-only cookie
   const refreshToken = req.cookies.get("refreshToken")?.value;
-  console.log('Refresh token found:', refreshToken ? 'YES' : 'NO');
 
   if (!refreshToken) {
-    console.log('❌ No refresh token found in cookies');
     return Response.json({ error: "No refresh token provided" }, { status: 401 });
   }
 
   // Try Credentials validation first
   const credResult = validateCredentialsAccessToken(accessToken ?? "");
-  console.log('Current access token valid:', credResult.valid);
   
   if (credResult.valid) {
-    console.log('✅ Current access token is still valid');
     return Response.json({ provider: "credentials", payload: credResult.payload });
   }
 
   // Try Google validation
   const googleResult = await validateGoogleAccessToken(accessToken ?? "");
-  console.log('Google token valid:', googleResult.valid);
   
   if (googleResult.valid) {
-    console.log('✅ Google token is still valid');
     return Response.json({ provider: "google", payload: googleResult.payload });
   }
 
   // Try to refresh Credentials token
-  console.log('🔄 Attempting to refresh credentials token...');
   const newCredToken = refreshCredentialsToken(refreshToken);
   
   if (newCredToken) {
-    console.log('✅ Successfully refreshed credentials token');
     // Set new access token in cookie
     (await cookies()).set('accessToken', newCredToken.accessToken, {
       httpOnly: false, // Allow client-side access
@@ -122,15 +112,13 @@ export async function POST(req: NextRequest) {
     });
     return Response.json({ provider: "credentials", accessToken: newCredToken.accessToken });
   } else {
-    console.log('❌ Failed to refresh credentials token');
+    console.error('Failed to refresh credentials token');
   }
 
   // Try to refresh Google token
-  console.log('🔄 Attempting to refresh Google token...');
-  const newGoogleToken = await refreshGoogleToken(refreshToken);
+   const newGoogleToken = await refreshGoogleToken(refreshToken);
   
   if (newGoogleToken) {
-    console.log('✅ Successfully refreshed Google token');
     // Set new access token in cookie for Google token as well
     (await cookies()).set('accessToken', newGoogleToken.accessToken, {
       httpOnly: false, // Allow client-side access
@@ -141,10 +129,9 @@ export async function POST(req: NextRequest) {
     });
     return Response.json({ provider: "google", ...newGoogleToken });
   } else {
-    console.log('❌ Failed to refresh Google token');
+    console.error('Failed to refresh Google token');
   }
 
   // All failed
-  console.log('❌ All token refresh attempts failed');
   return Response.json({ error: "Invalid or expired token and refresh failed" }, { status: 401 });
 }

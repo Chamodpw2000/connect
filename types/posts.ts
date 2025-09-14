@@ -1,6 +1,7 @@
 import { postFormType } from "@/lib/validations/post";
 import { IComment } from "@/models/comment";
 import { IUser } from "@/models/user";
+import { UserApiResponseType } from "./user";
 
 
 
@@ -49,6 +50,10 @@ title: string;
   updatedAt: Date;
 
 
+}
+
+export interface NewFeedProps {
+    user: UserApiResponseType | null;
 }
 
 

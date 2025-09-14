@@ -4,7 +4,7 @@ import React from 'react'
 
 const AddPost = () => {
   return (
-    <div>
+    <div className='w-full'>
         <PostForm addPost={addPost}/>
 
     </div>

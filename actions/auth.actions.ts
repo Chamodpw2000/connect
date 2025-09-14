@@ -1,7 +1,9 @@
+import { AUTH_ENDPOINTS } from "@/constants/api-endpoints.constants"
+import { clearAuthCookies } from "@/lib/clientCookies"
 import { loginFormSchema, LoginFormType, registrationFormSchema, RegistrationFormType } from "@/lib/validations/auth"
 import { validateInput } from "@/lib/validations/inputValidator"
 import axios, { AxiosError } from "axios"
-import { signIn } from "next-auth/react"
+import { signIn, signOut } from "next-auth/react"
 
 
 
@@ -16,7 +18,7 @@ export const register = async ({ data }: { data: RegistrationFormType }) => {
         birthdate: validatedData.birthDate,
         country: validatedData.country,
     }
-    const response = await axios.post('/api/auth/register', payload)
+    const response = await axios.post(`${AUTH_ENDPOINTS.REGISTER}`, payload)
     return response.data;
 }
 
@@ -31,4 +33,19 @@ export const login = async (data: LoginFormType) => {
     return result;
 
 };
+
+export const logOut = async () => {
+    try {
+      // Call logout API to clear server-side cookies
+      await fetch(`${AUTH_ENDPOINTS.LOGOUT}`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+    } catch (error) {
+      console.error('Logout API error:', error);
+    }
+    
+    clearAuthCookies(); // Clear client-side access token cookie
+    signOut();
+  };
 

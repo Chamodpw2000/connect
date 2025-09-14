@@ -50,18 +50,17 @@ export function getAccessTokenFromRequest(req: NextRequest): string | null {
 export function verifyAccessToken(token: string): AccessTokenPayload | null {
   try {
     if (!process.env.ACCESS_TOKEN_SECRET) {
-      console.error('ACCESS_TOKEN_SECRET is not defined');
+
       return null;
     }
     
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET) as AccessTokenPayload;
 
-    console.log(decoded,"dddddddddddddd");
     
-    console.log('Token verified successfully:', { userId: decoded.userId });
+ 
     return decoded;
   } catch (error) {
-    console.error('Token verification failed:', error);
+
     return null;
   }
 }
@@ -73,7 +72,7 @@ export function verifyAccessToken(token: string): AccessTokenPayload | null {
 export function getVerifiedTokenFromRequest(req: NextRequest): AccessTokenPayload | null {
   const token = getAccessTokenFromRequest(req);
   if (!token) {
-    console.log('No access token found in request');
+   
     return null;
   }
   
@@ -87,7 +86,7 @@ export function getVerifiedTokenFromRequest(req: NextRequest): AccessTokenPayloa
 export async function getVerifiedServerToken(): Promise<AccessTokenPayload | null> {
   const token = await getServerAccessToken();
   if (!token) {
-    console.log('No access token found in server cookies');
+
     return null;
   }
   
@@ -166,7 +165,6 @@ export async function removeServerCookie(name: string): Promise<void> {
  */
 export async function getServerAccessToken(): Promise<string | null> {
   const token = await getServerCookie('accessToken');
-  console.log('getServerAccessToken result:', token ? 'Token found' : 'No token found');
   return token;
 }
 

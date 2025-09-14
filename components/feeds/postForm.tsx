@@ -4,7 +4,7 @@ import { ImagePreview, postFormType, postFormSchema } from '@/lib/validations/po
 import { zodResolver } from '@hookform/resolvers/zod';
 import { X, Upload } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form';
 import z from 'zod';

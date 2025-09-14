@@ -2,6 +2,7 @@
 import axios from 'axios';
 import { cookies } from 'next/headers';
 import { getServerAccessToken } from './cookies';
+import { logOut } from '@/actions/auth.actions';
 
 // Create server-side Axios instance for API routes and server components
 export const createServerApi = async () => {
@@ -17,7 +18,7 @@ export const createServerApi = async () => {
   // Request interceptor for server-side: Attach access token from cookies
   serverApi.interceptors.request.use(async config => {
     const accessToken = await getServerAccessToken();
-    console.log(accessToken, "access token");
+  
     
     if (accessToken) {
       config.headers['Authorization'] = `Bearer ${accessToken}`;
@@ -29,8 +30,7 @@ export const createServerApi = async () => {
     }
     
     // Check the actual outgoing request headers
-    console.log(config.headers['Authorization'], "outgoing authorization header");
-    console.log(config.headers['Cookie'] ? 'Cookies forwarded' : 'No cookies', "cookie status");
+
     
     return config;
   });
@@ -46,7 +46,7 @@ export const createServerApi = async () => {
         originalRequest._retry = true;
         
         try {
-          console.log('Attempting token refresh with cookies:', cookieString ? 'YES' : 'NO');
+         
           
           // Call refresh token endpoint with cookies forwarded
           const refreshResponse = await axios.post(
@@ -72,19 +72,7 @@ export const createServerApi = async () => {
           console.error('Token refresh failed:', refreshError);
           
           // Call existing logout API to clear cookies
-          try {
-            await axios.post(
-              `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/auth/logout`,
-              {},
-              {
-                headers: {
-                  'Cookie': cookieString
-                }
-              }
-            );
-          } catch (logoutError) {
-            console.error('Logout API call failed:', logoutError);
-          }
+        await logOut();
           
           // Throw the original error
           throw refreshError;

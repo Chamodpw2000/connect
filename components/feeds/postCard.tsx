@@ -26,6 +26,8 @@ const PostCard: React.FC<PostCardProps> = ({
     currentUserEmail,
     className = '',
 }) => {
+    // console.log('post', post);
+    
     const [isLiked, setIsLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(0);
     const [showFullContent, setShowFullContent] = useState(false);
