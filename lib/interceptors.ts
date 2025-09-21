@@ -2,7 +2,6 @@
 import axios from 'axios';
 import { cookies } from 'next/headers';
 import { getServerAccessToken } from './cookies';
-import { logOut } from '@/actions/auth.actions';
 
 // Create server-side Axios instance for API routes and server components
 export const createServerApi = async () => {
@@ -71,8 +70,22 @@ export const createServerApi = async () => {
         } catch (refreshError) {
           console.error('Token refresh failed:', refreshError);
           
-          // Call existing logout API to clear cookies
-        await logOut();
+          // Call logout API to clear cookies (don't use server action from interceptor)
+          try {
+            await fetch('/api/auth/logout', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+          } catch (logoutError) {
+            console.error('Logout API call failed:', logoutError);
+          }
+          
+          // Redirect to login page using window.location (client-side)
+          if (typeof window !== 'undefined') {
+            window.location.href = '/auth/login';
+          }
           
           // Throw the original error
           throw refreshError;

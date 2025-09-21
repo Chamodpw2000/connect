@@ -1,5 +1,5 @@
 'use client'
-import { logOut } from '@/actions/auth.actions';
+// import { clientLogout } from '@/lib/logout';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +15,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { FaCog, FaSearch, FaSignOutAlt, FaUser } from 'react-icons/fa';
+import { logOut } from '@/actions/auth.actions';
 
 interface HeaderProps {
   user: UserApiResponseType | null;
@@ -84,8 +85,9 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
         <DropdownMenuSeparator className="my-1 border-gray-200" />
         <DropdownMenuItem 
           className="flex items-center px-2 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md cursor-pointer"
-          onClick={() => {
-            logOut();
+          onClick={async () => {
+         await   logOut();
+            router.push('/auth/login');
             setIsMobileMenuOpen(false);
           }}
         >

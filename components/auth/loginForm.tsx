@@ -1,6 +1,6 @@
 'use client';
 
-import { login } from '@/actions/auth.actions';
+
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,7 @@ import { z } from 'zod';
 
 
 
-export default function LoginForm() {
+export default function LoginForm({login}: {login?: (data: any) => Promise<any>}) {
   const router = useRouter();
 
   const form = useForm<LoginFormType>({
@@ -27,16 +27,51 @@ export default function LoginForm() {
   });
 
   const onSubmit = async (formValues: z.infer<typeof loginFormSchema>) => {
-   const result = await login(formValues);
-     if (result?.error) {
-      if( result.error === 'userNotFound') {
-        form.setError('email', { type: 'manual', message: 'No user found with this email' });
-      } else if (result.error === 'InvalidPassword') {
-        form.setError('password', { type: 'manual', message: 'Invalid Password for this Email' });
-      }
+    console.log('Submitting login form with values:', formValues);
+    try {
+      if (login) {
+        // Use custom login function
+        const result = await login(formValues);
+        
+        console.log('Login result:', result);
+        
+        if (result?.ok) {
+          console.log('Login successful, redirecting to /feed');
+          router.push('/feed');
+        } else if (result?.error) {
+          if (result.error === 'userNotFound') {
+            form.setError('email', { type: 'manual', message: 'No user found with this email' });
+          } else if (result.error === 'InvalidPassword') {
+            form.setError('password', { type: 'manual', message: 'Invalid Password for this Email' });
+          } else {
+            console.error('Login error:', result.error);
+          }
+        }
+      } else {
+        // Fallback to NextAuth signIn if no custom login function provided
+        const result = await signIn('credentials', {
+          email: formValues.email,
+          password: formValues.password,
+          redirect: false,
+        });
 
-    } else if (result?.ok || result?.status === 200) {
-      router.push('/feed'); // Redirect on successful login
+        console.log('Login result:', result);
+        
+        if (result?.error) {
+          if (result.error === 'userNotFound') {
+            form.setError('email', { type: 'manual', message: 'No user found with this email' });
+          } else if (result.error === 'InvalidPassword') {
+            form.setError('password', { type: 'manual', message: 'Invalid Password for this Email' });
+          } else {
+            console.error('Login error:', result.error);
+          }
+        } else if (result?.ok) {
+          console.log('Login successful, redirecting to /feed');
+          router.push('/feed');
+        }
+      }
+    } catch (error) {
+      console.error('Login error:', error);
     }
   };
 

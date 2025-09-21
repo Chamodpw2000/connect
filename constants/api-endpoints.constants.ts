@@ -1,9 +1,7 @@
 export const AUTH_ENDPOINTS = {
-    LOGIN:'auth/login',
-    LOGOUT: 'auth/logout',
-    REGISTER: 'auth/register',
-
-    
+    LOGIN: '/api/auth/login',
+    LOGOUT: '/api/auth/logout', 
+    REGISTER: '/api/auth/register',
 }
 
 export const POSTS_ENDPOINTS = {

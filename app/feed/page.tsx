@@ -53,7 +53,8 @@ const Feeds = async ({ searchParams }: PageProps) => {
   let user:UserApiResponseType | null = null;
 
   try {
-    user = await getCurrentUser(session?.user?.email || '');
+    if(session?.user?.email){   user = await getCurrentUser(session?.user?.email || '');}
+ 
  
     
   } catch (error) {

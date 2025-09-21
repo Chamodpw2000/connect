@@ -1,18 +1,14 @@
 'use client'
-import axios from 'axios';
-import { useSession } from 'next-auth/react';
+import { NewFeedProps } from '@/types/posts';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import React, { useEffect } from 'react';
 import { Button } from '../ui/button';
-import { NewFeedProps } from '@/types/posts';
 
 
 
 
 const NewFeed = ({ user }: NewFeedProps) => {
     const navigate = useRouter();
-    type DetailedUser = { image?: string;[key: string]: any };
  
 
    

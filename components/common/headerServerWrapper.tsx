@@ -7,19 +7,32 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 const HeaderServerWrapper = async () => {
+    console.log('HeaderServerWrapper: Starting...');
+    
     const session = await getServerSession(authOptions);
-    let user : UserApiResponseType | null = null; 
-    try {
-        user = await getCurrentUser(session?.user?.email || '');
-    } catch (error) {
-        console.error("Error fetching user:", error);
+    console.log('HeaderServerWrapper: Session exists:', !!session);
+    
+    let user: UserApiResponseType | null = null; 
+    
+    // Only fetch user if session exists and has email
+    if (session?.user?.email) {
+        console.log('HeaderServerWrapper: Fetching user for email:', session.user.email);
+        try {
+            user = await getCurrentUser(session.user.email);
+            console.log('HeaderServerWrapper: User fetched successfully');
+        } catch (error) {
+            console.error("HeaderServerWrapper: Error fetching user:", error);
+        }
+    } else {
+        console.log('HeaderServerWrapper: No session or email, skipping user fetch');
     }
-  return (
-    <div>
-
-        <Header user={user} />
-    </div>
-  )
+    
+    console.log('HeaderServerWrapper: Rendering header...');
+    return (
+        <div>
+            <Header user={user} />
+        </div>
+    )
 }
 
 export default HeaderServerWrapper
