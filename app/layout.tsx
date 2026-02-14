@@ -7,6 +7,7 @@ import Footer from '@/components/common/footer';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Providers from './providers';
+import HeaderServerWrapper from '@/components/common/headerServerWrapper';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -50,7 +51,7 @@ export default function RootLayout({
           theme="light"
         />
                 <Providers>
-        <Header />
+     <HeaderServerWrapper />
         <div className='pt-[80px]'>
    {children}
         </div>

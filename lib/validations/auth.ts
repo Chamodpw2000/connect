@@ -1,3 +1,4 @@
+import { imagePreviewSchema } from "@/types/common";
 import z from "zod";
 
 export const registrationFormSchema = z.object({
@@ -47,18 +48,9 @@ export const editProfileSchema = z.object({
   miniDescription: z.string().max(200, { message: 'Mini description must be less than 200 characters' }).optional(),
   bio: z.string().max(500, { message: 'Bio must be less than 500 characters' }).optional(),
   country: z.string().min(2, { message: 'Country must be at least 2 characters long' }),
-  image: z.string().refine((val) => {
-    // Allow empty string, relative paths, or valid URLs
-    if (!val || val.startsWith('/') || val.startsWith('./') || val.startsWith('../')) {
-      return true;
-    }
-    try {
-      new URL(val);
-      return true;
-    } catch {
-      return false;
-    }
-  }, { message: 'Invalid image path or URL' }).optional(),
+  image: z.instanceof(File).optional(),
+  previousImage: z.string().optional(), 
+  imageRemoved: z.boolean().optional(),
 });
 
 export type EditProfileType = z.infer<typeof editProfileSchema>;

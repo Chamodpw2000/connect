@@ -1,6 +1,7 @@
 import { postFormType } from "@/lib/validations/post";
 import { IComment } from "@/models/comment";
 import { IUser } from "@/models/user";
+import { UserApiResponseType } from "./user";
 
 
 
@@ -16,7 +17,7 @@ export interface PostForPostCardType {
     _id: string;
     title: string;
     content: string;
-    author: IUser;
+    author: IUser | null; // Allow null in case author is not found
     createdAt: string | Date;
     updatedAt: string | Date;
     images?: string[];
@@ -38,7 +39,7 @@ export interface PostApiResponseType   {
 _id: string;
 title: string;
   content: string;
-  author: (IUser & { _id: string });
+  author: (IUser & { _id: string }) | null; // Allow null for deleted users
 
   images?: string[];
   tags?: string[];
@@ -49,6 +50,10 @@ title: string;
   updatedAt: Date;
 
 
+}
+
+export interface NewFeedProps {
+    user: UserApiResponseType | null;
 }
 
 

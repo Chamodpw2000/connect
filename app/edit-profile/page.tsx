@@ -1,49 +1,34 @@
-'use client'
-import { useAuth } from '@/hooks/useUser'
+import { getCurrentUser } from '@/actions/user.actionns';
+import EditProfileClientWrapper from '@/components/profile/editProfileClientWrapper'
+import { UserApiResponseType } from '@/types/user'
 import React from 'react'
-import Image from 'next/image'
-import CustomButton from '@/components/common/button'
-import DisplayProfile from '@/components/profile/display'
-import EditProfile from '@/components/profile/edit'
-const Profile = () => {
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { redirect } from 'next/navigation';
 
-    const [isEdit, setIsEdit] = React.useState(false);
+const EditProfile = async () => {
+  // Get session to fetch current user's email
+  const session = await getServerSession(authOptions);
+  
+  if (!session || !session.user?.email) {
+    redirect('/auth/login');
+  }
 
-    
+  let user: UserApiResponseType;
+  try {
+    user = await getCurrentUser(session.user.email);
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    redirect('/auth/login');
+  }
 
-    return (
-        <div>
-
-            <div className="flex w-full min-h-screen">
-                <div className="lg:flex flex-1 bg-accent w-full hidden">
-
-                    <div className="text-gray-700 text-xl font-bold w-full p-5">
-
-
- 
-
-
-
-                    </div>
-
-                </div>
-    <div className="flex flex-3 p-5 w-full flex-col items-center justify-start">
-       {isEdit ? <EditProfile setIsEdit={setIsEdit}/> : <DisplayProfile  />}
-
-        {!isEdit && <CustomButton label="Edit Profile" onClick={() => setIsEdit(true)} className='mt-[20px]' />}
-       
-
-</div>
-               
-                <div className="lg:flex flex-1 bg-accent hidden ">
-
-                </div>
-
-            </div>
-
-
-        </div>
-    )
+  return (
+    <div>
+      <EditProfileClientWrapper user={user} />
+    </div>
+  )
 }
 
-export default Profile
+export default EditProfile
+
+

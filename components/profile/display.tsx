@@ -1,11 +1,19 @@
 'use client'
 import { useAuth } from '@/hooks/useUser'
+import { UserApiResponseType } from '@/types/user'
 import Image from 'next/image'
 
-const DisplayProfile =  () => {
-      const { user } = useAuth();
-      console.log("user is ",user);
+interface DisplayProfileProps {
+  user?: UserApiResponseType;
+}
 
+const DisplayProfile = ({ user }: DisplayProfileProps) => {
+    
+      
+      // Use server-side user if available, otherwise fall back to hook user
+
+
+      
   return (
         <div className="max-w-2xl mx-auto p-8 bg-white rounded-xl shadow-lg flex flex-col items-center">
             <div className="relative group mb-6">

@@ -1,7 +1,8 @@
 
+import { ImagePreview } from "@/types/common";
 import mediaUpload from "./superbaseClient";
 import { createClient } from '@supabase/supabase-js';
-import { ImagePreview } from "./validations/post";
+
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;

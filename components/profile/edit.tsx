@@ -1,10 +1,8 @@
 'use client'
-import { useAuth } from '@/hooks/useUser';
-import { deleteImageFromSupabase, uploadImageToSupabase } from '@/lib/handleImages';
 import getCroppedImg from '@/lib/utils/cropImage';
 import { editProfileSchema, EditProfileType } from '@/lib/validations/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
-import axios from 'axios';
+
 import { Camera, Loader2, UserRound } from 'lucide-react';
 import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react';
@@ -16,9 +14,20 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/
 import { Input } from '../ui/input';
 
 
-const EditProfile = ({ setIsEdit }: { setIsEdit: React.Dispatch<React.SetStateAction<boolean>> }) => {
-  const { user } =  useAuth();
-  console.log("User data in edit:", user);
+import { UserApiResponseType } from '@/types/user';
+import { updateCurrentUser } from '@/actions/user.actionns';
+
+const EditProfile = ({ 
+  setIsEdit, 
+  user
+}: { 
+  setIsEdit: React.Dispatch<React.SetStateAction<boolean>>;
+  user?: UserApiResponseType;
+}) => {
+  
+
+  
+
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
@@ -27,7 +36,6 @@ const EditProfile = ({ setIsEdit }: { setIsEdit: React.Dispatch<React.SetStateAc
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>({ x: 0, y: 0, width: 150, height: 150 });
-  const [isImageRemoved, setIsImageRemoved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<EditProfileType>({
@@ -38,7 +46,7 @@ const EditProfile = ({ setIsEdit }: { setIsEdit: React.Dispatch<React.SetStateAc
       miniDescription: '',
       country: '',
       bio: '',
-      image: '/Images/feed/avatar.png',
+ 
     }
   });
 
@@ -50,10 +58,12 @@ const EditProfile = ({ setIsEdit }: { setIsEdit: React.Dispatch<React.SetStateAc
         miniDescription: user.miniDescription || '',
         country: user.country || '',
         bio: user.bio || '',
-        image: user.image || '/Images/feed/avatar.png',
+        previousImage: user.image || '',
+
+       
       });
       setImagePreview(user.image || '/Images/feed/avatar.png');
-      setIsImageRemoved(false);
+    form.setValue("imageRemoved", false);
     }
   }, [user]);
 
@@ -78,6 +88,7 @@ const EditProfile = ({ setIsEdit }: { setIsEdit: React.Dispatch<React.SetStateAc
         return;
       }
       setImageFile(file);
+      form.setValue('image', file); // <-- Add file to form.image
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -116,44 +127,7 @@ const EditProfile = ({ setIsEdit }: { setIsEdit: React.Dispatch<React.SetStateAc
     console.log("Form submitted with data:", data);
     setIsUploading(true);
     try {
-      let finalImageUrl = data.image;
-
-      // If user removed image, delete from Supabase
-      if (isImageRemoved && user?.image && !user.image.includes('/Images/feed/avatar.png')) {
-        try {
-          console.log("Deleting old image:", user.image);
-          await deleteImageFromSupabase(user.image);
-        } catch (error) {
-          console.log("Error deleting old image:", error);
-        }
-        finalImageUrl = '/Images/feed/avatar.png';
-      } 
-      // If user selected a new image, upload it
-      else if (imageFile) {
-        if (user?.image && !user.image.includes('/Images/feed/avatar.png')) {
-          try {
-            console.log("Deleting old image:", user.image);
-            await deleteImageFromSupabase(user.image);
-          } catch (error) {
-            console.log("Error deleting old image:", error);
-          }
-        }
-        finalImageUrl = await uploadImageToSupabase(imageFile);
-      }
-
-      const finalData = {
-        ...data,
-        image: finalImageUrl
-      };
-
-      console.log("Save Profile Data:", finalData);
-
-      axios.post('/api/edit-profile', finalData)
-       
-
-      // Add your API call here to update user profile
-      // await updateProfile(finalData);
-      
+      await updateCurrentUser(user?._id || '', data);
       setIsEdit(false);
     } catch (error) {
       console.error("Error saving profile:", error);
@@ -203,7 +177,7 @@ const EditProfile = ({ setIsEdit }: { setIsEdit: React.Dispatch<React.SetStateAc
                 onClick={() => {
                   setImagePreview('/Images/feed/avatar.png');
                   setImageFile(null);
-                  setIsImageRemoved(true);
+                  form.setValue("imageRemoved", true);
                 }}
                 className="absolute bottom-0 right-0 bg-red-500 hover:bg-red-600 text-white p-2 rounded-full shadow-lg transition-colors cursor-pointer"
                 aria-label="Remove profile image"
@@ -380,7 +354,7 @@ const EditProfile = ({ setIsEdit }: { setIsEdit: React.Dispatch<React.SetStateAc
               onClick={() => {
                 setImagePreview(user?.image || '/Images/feed/avatar.png');
                 setImageFile(null);
-                setIsImageRemoved(false);
+             form.setValue("imageRemoved", false);
                 setIsEdit(false);
               }}
               disabled={form.formState.isSubmitting || isUploading}
